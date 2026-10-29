@@ -1,0 +1,4573 @@
+{
+  "zabbix_export": {
+    "version": "7.0",
+    "template_groups": [
+      {
+        "uuid": "d08cf7c054684234a0dab0529fa963de",
+        "name": "Templates/Servers/Hardware"
+      }
+    ],
+    "templates": [
+      {
+        "uuid": "57d4a9773c094ea6aabe7304f277fdfb",
+        "template": "DGX Spark GB10 by host collector",
+        "name": "DGX Spark GB10 by host collector",
+        "description": "DGX Spark / NVIDIA GB10. Linux HOST collector + read-only JSON for containerized Agent 2. Base format 7.0; target deployment reported as Server 7.0.31 and Agent 2 7.4.15 (live validation pending). Default service candidates include Ollama, vLLM, ComfyUI, llama.cpp, LM Studio, SGLang and TensorFold TCP/8888; ports are configured in the host collector JSON, not this export. UMA RAM is not dedicated VRAM. Unsupported NVIDIA values are omitted. Power is the NVIDIA-reported domain, not wall power. See README.md.",
+        "groups": [
+          {
+            "name": "Templates/Servers/Hardware"
+          }
+        ],
+        "items": [
+          {
+            "uuid": "cb3a3dec3e8c4ebaa96e4509da14d811",
+            "name": "DGX: host telemetry JSON",
+            "type": "ZABBIX_ACTIVE",
+            "key": "dgx.telemetry",
+            "delay": "{$DGX.INTERVAL}",
+            "history": "1d",
+            "value_type": "TEXT",
+            "trends": "0",
+            "tags": [
+              {
+                "tag": "component",
+                "value": "collector"
+              }
+            ]
+          },
+          {
+            "uuid": "1f336623ec4049a88cbef96a8051bdcb",
+            "name": "DGX: host snapshot timestamp",
+            "type": "DEPENDENT",
+            "key": "dgx.timestamp",
+            "delay": "0",
+            "history": "7d",
+            "value_type": "FLOAT",
+            "preprocessing": [
+              {
+                "type": "JSONPATH",
+                "parameters": [
+                  "$.timestamp"
+                ],
+                "error_handler": "DISCARD_VALUE"
+              }
+            ],
+            "master_item": {
+              "key": "dgx.telemetry"
+            },
+            "tags": [
+              {
+                "tag": "component",
+                "value": "system"
+              }
+            ],
+            "units": "unixtime",
+            "triggers": [
+              {
+                "uuid": "b1e1e52cb3314ce3a754401f591615d0",
+                "expression": "nodata(/DGX Spark GB10 by host collector/dgx.timestamp,{$DGX.STALE})=1 or fuzzytime(/DGX Spark GB10 by host collector/dgx.timestamp,{$DGX.STALE})=0",
+                "name": "DGX: host snapshot missing, stale or clock out of sync",
+                "priority": "HIGH",
+                "tags": [
+                  {
+                    "tag": "scope",
+                    "value": "availability"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "uuid": "78c70c44b3cf4151bcb97c74cacfc120",
+            "name": "DGX: collector error count",
+            "type": "DEPENDENT",
+            "key": "dgx.errors",
+            "delay": "0",
+            "history": "7d",
+            "value_type": "FLOAT",
+            "preprocessing": [
+              {
+                "type": "JSONPATH",
+                "parameters": [
+                  "$.error_count"
+                ],
+                "error_handler": "DISCARD_VALUE"
+              }
+            ],
+            "master_item": {
+              "key": "dgx.telemetry"
+            },
+            "tags": [
+              {
+                "tag": "component",
+                "value": "system"
+              }
+            ],
+            "triggers": [
+              {
+                "uuid": "c4a773f3a03b4fc2a5a414b9365d16ca",
+                "expression": "min(/DGX Spark GB10 by host collector/dgx.errors,{$DGX.WINDOW})>0 and fuzzytime(/DGX Spark GB10 by host collector/dgx.timestamp,{$DGX.STALE})=1",
+                "name": "DGX: persistent collector errors; check diagnostics",
+                "priority": "WARNING",
+                "tags": [
+                  {
+                    "tag": "scope",
+                    "value": "performance"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "uuid": "5f7d483eca94450199f0f08d3b409833",
+            "name": "DGX: diagnostics JSON",
+            "type": "DEPENDENT",
+            "key": "dgx.diagnostics",
+            "delay": "0",
+            "history": "7d",
+            "value_type": "TEXT",
+            "preprocessing": [
+              {
+                "type": "JSONPATH",
+                "parameters": [
+                  "$.errors"
+                ],
+                "error_handler": "DISCARD_VALUE"
+              }
+            ],
+            "master_item": {
+              "key": "dgx.telemetry"
+            },
+            "tags": [
+              {
+                "tag": "component",
+                "value": "system"
+              }
+            ],
+            "trends": "0"
+          },
+          {
+            "uuid": "c67689b1c1b84a519b30719b3378f5da",
+            "name": "DGX: inventory JSON",
+            "type": "DEPENDENT",
+            "key": "dgx.inventory",
+            "delay": "0",
+            "history": "7d",
+            "value_type": "TEXT",
+            "preprocessing": [
+              {
+                "type": "JSONPATH",
+                "parameters": [
+                  "$.inventory"
+                ],
+                "error_handler": "DISCARD_VALUE"
+              }
+            ],
+            "master_item": {
+              "key": "dgx.telemetry"
+            },
+            "tags": [
+              {
+                "tag": "component",
+                "value": "system"
+              }
+            ],
+            "trends": "0"
+          },
+          {
+            "uuid": "9342d775713b42289f5dae406943a548",
+            "name": "DGX: CPU utilization",
+            "type": "DEPENDENT",
+            "key": "dgx.summary[cpu_pct]",
+            "delay": "0",
+            "history": "7d",
+            "value_type": "FLOAT",
+            "preprocessing": [
+              {
+                "type": "JSONPATH",
+                "parameters": [
+                  "$.summary.cpu_pct"
+                ],
+                "error_handler": "DISCARD_VALUE"
+              }
+            ],
+            "master_item": {
+              "key": "dgx.telemetry"
+            },
+            "tags": [
+              {
+                "tag": "component",
+                "value": "system"
+              }
+            ],
+            "units": "%"
+          },
+          {
+            "uuid": "2178dd279155439ea7495293e0a7191d",
+            "name": "DGX: Unified RAM total",
+            "type": "DEPENDENT",
+            "key": "dgx.summary[mem_total]",
+            "delay": "0",
+            "history": "7d",
+            "value_type": "FLOAT",
+            "preprocessing": [
+              {
+                "type": "JSONPATH",
+                "parameters": [
+                  "$.summary.mem_total"
+                ],
+                "error_handler": "DISCARD_VALUE"
+              }
+            ],
+            "master_item": {
+              "key": "dgx.telemetry"
+            },
+            "tags": [
+              {
+                "tag": "component",
+                "value": "system"
+              }
+            ],
+            "units": "B"
+          },
+          {
+            "uuid": "c3be3f950a5040659ac9ccdd0d718bba",
+            "name": "DGX: RAM available",
+            "type": "DEPENDENT",
+            "key": "dgx.summary[mem_available]",
+            "delay": "0",
+            "history": "7d",
+            "value_type": "FLOAT",
+            "preprocessing": [
+              {
+                "type": "JSONPATH",
+                "parameters": [
+                  "$.summary.mem_available"
+                ],
+                "error_handler": "DISCARD_VALUE"
+              }
+            ],
+            "master_item": {
+              "key": "dgx.telemetry"
+            },
+            "tags": [
+              {
+                "tag": "component",
+                "value": "system"
+              }
+            ],
+            "units": "B"
+          },
+          {
+            "uuid": "67eb2b736d1d45b4ac115d1b932d2b0f",
+            "name": "DGX: RAM used",
+            "type": "DEPENDENT",
+            "key": "dgx.summary[mem_used]",
+            "delay": "0",
+            "history": "7d",
+            "value_type": "FLOAT",
+            "preprocessing": [
+              {
+                "type": "JSONPATH",
+                "parameters": [
+                  "$.summary.mem_used"
+                ],
+                "error_handler": "DISCARD_VALUE"
+              }
+            ],
+            "master_item": {
+              "key": "dgx.telemetry"
+            },
+            "tags": [
+              {
+                "tag": "component",
+                "value": "system"
+              }
+            ],
+            "units": "B"
+          },
+          {
+            "uuid": "e832a0bd48724476b15de583169620ec",
+            "name": "DGX: RAM pressure",
+            "type": "DEPENDENT",
+            "key": "dgx.summary[mem_used_pct]",
+            "delay": "0",
+            "history": "7d",
+            "value_type": "FLOAT",
+            "preprocessing": [
+              {
+                "type": "JSONPATH",
+                "parameters": [
+                  "$.summary.mem_used_pct"
+                ],
+                "error_handler": "DISCARD_VALUE"
+              }
+            ],
+            "master_item": {
+              "key": "dgx.telemetry"
+            },
+            "tags": [
+              {
+                "tag": "component",
+                "value": "system"
+              }
+            ],
+            "units": "%"
+          },
+          {
+            "uuid": "1afa5c53b5364630a5cc8b648ca560cb",
+            "name": "DGX: Root filesystem used",
+            "type": "DEPENDENT",
+            "key": "dgx.summary[root_used_pct]",
+            "delay": "0",
+            "history": "7d",
+            "value_type": "FLOAT",
+            "preprocessing": [
+              {
+                "type": "JSONPATH",
+                "parameters": [
+                  "$.summary.root_used_pct"
+                ],
+                "error_handler": "DISCARD_VALUE"
+              }
+            ],
+            "master_item": {
+              "key": "dgx.telemetry"
+            },
+            "tags": [
+              {
+                "tag": "component",
+                "value": "system"
+              }
+            ],
+            "units": "%"
+          },
+          {
+            "uuid": "da69c68ec3cd432ea964adbf18a349f9",
+            "name": "DGX: GPU 0 temperature",
+            "type": "DEPENDENT",
+            "key": "dgx.summary[gpu_temp]",
+            "delay": "0",
+            "history": "7d",
+            "value_type": "FLOAT",
+            "preprocessing": [
+              {
+                "type": "JSONPATH",
+                "parameters": [
+                  "$.summary.gpu_temp"
+                ],
+                "error_handler": "DISCARD_VALUE"
+              }
+            ],
+            "master_item": {
+              "key": "dgx.telemetry"
+            },
+            "tags": [
+              {
+                "tag": "component",
+                "value": "system"
+              }
+            ],
+            "units": "C"
+          },
+          {
+            "uuid": "739f06d34a3344ffb0565f6607cc8a55",
+            "name": "DGX: GPU 0 utilization",
+            "type": "DEPENDENT",
+            "key": "dgx.summary[gpu_util]",
+            "delay": "0",
+            "history": "7d",
+            "value_type": "FLOAT",
+            "preprocessing": [
+              {
+                "type": "JSONPATH",
+                "parameters": [
+                  "$.summary.gpu_util"
+                ],
+                "error_handler": "DISCARD_VALUE"
+              }
+            ],
+            "master_item": {
+              "key": "dgx.telemetry"
+            },
+            "tags": [
+              {
+                "tag": "component",
+                "value": "system"
+              }
+            ],
+            "units": "%"
+          },
+          {
+            "uuid": "7306940c07494ca09e07675324945caa",
+            "name": "DGX: GPU 0 NVIDIA-reported power",
+            "type": "DEPENDENT",
+            "key": "dgx.summary[gpu_power]",
+            "delay": "0",
+            "history": "7d",
+            "value_type": "FLOAT",
+            "preprocessing": [
+              {
+                "type": "JSONPATH",
+                "parameters": [
+                  "$.summary.gpu_power"
+                ],
+                "error_handler": "DISCARD_VALUE"
+              }
+            ],
+            "master_item": {
+              "key": "dgx.telemetry"
+            },
+            "tags": [
+              {
+                "tag": "component",
+                "value": "system"
+              }
+            ],
+            "units": "W"
+          },
+          {
+            "uuid": "b179ff5f220443298efdb279f25bcf7c",
+            "name": "DGX: GPU 0 estimated cumulative energy",
+            "type": "DEPENDENT",
+            "key": "dgx.summary[gpu_kwh]",
+            "delay": "0",
+            "history": "7d",
+            "value_type": "FLOAT",
+            "preprocessing": [
+              {
+                "type": "JSONPATH",
+                "parameters": [
+                  "$.summary.gpu_kwh"
+                ],
+                "error_handler": "DISCARD_VALUE"
+              }
+            ],
+            "master_item": {
+              "key": "dgx.telemetry"
+            },
+            "tags": [
+              {
+                "tag": "component",
+                "value": "system"
+              }
+            ],
+            "units": "kWh"
+          },
+          {
+            "uuid": "41d60be736414470932598da69189f7c",
+            "name": "DGX: NVIDIA query successful",
+            "type": "DEPENDENT",
+            "key": "dgx.summary[gpu_query_ok]",
+            "delay": "0",
+            "history": "7d",
+            "value_type": "FLOAT",
+            "preprocessing": [
+              {
+                "type": "JSONPATH",
+                "parameters": [
+                  "$.summary.gpu_query_ok"
+                ],
+                "error_handler": "DISCARD_VALUE"
+              }
+            ],
+            "master_item": {
+              "key": "dgx.telemetry"
+            },
+            "tags": [
+              {
+                "tag": "component",
+                "value": "system"
+              }
+            ],
+            "triggers": [
+              {
+                "uuid": "e48d9dc4362649d3966ded4ee8dd9f0a",
+                "expression": "max(/DGX Spark GB10 by host collector/dgx.summary[gpu_query_ok],{$DGX.WINDOW})=0 and fuzzytime(/DGX Spark GB10 by host collector/dgx.timestamp,{$DGX.STALE})=1",
+                "name": "DGX: nvidia-smi query failing",
+                "priority": "WARNING",
+                "tags": [
+                  {
+                    "tag": "scope",
+                    "value": "performance"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "uuid": "f3c9bc7584eb4c5f840cf4ed3a650475",
+            "name": "DGX: Host uptime",
+            "type": "DEPENDENT",
+            "key": "dgx.summary[uptime]",
+            "delay": "0",
+            "history": "7d",
+            "value_type": "FLOAT",
+            "preprocessing": [
+              {
+                "type": "JSONPATH",
+                "parameters": [
+                  "$.summary.uptime"
+                ],
+                "error_handler": "DISCARD_VALUE"
+              }
+            ],
+            "master_item": {
+              "key": "dgx.telemetry"
+            },
+            "tags": [
+              {
+                "tag": "component",
+                "value": "system"
+              }
+            ],
+            "units": "uptime"
+          },
+          {
+            "uuid": "cc955bdc49784512a6cfb9db2ac97a4c",
+            "name": "DGX: CPU load 15m",
+            "type": "DEPENDENT",
+            "key": "dgx.summary[load15]",
+            "delay": "0",
+            "history": "7d",
+            "value_type": "FLOAT",
+            "preprocessing": [
+              {
+                "type": "JSONPATH",
+                "parameters": [
+                  "$.summary.load15"
+                ],
+                "error_handler": "DISCARD_VALUE"
+              }
+            ],
+            "master_item": {
+              "key": "dgx.telemetry"
+            },
+            "tags": [
+              {
+                "tag": "component",
+                "value": "system"
+              }
+            ]
+          },
+          {
+            "uuid": "2edd33f8de5046118383deec1dc5ff56",
+            "name": "DGX: RAM page cache",
+            "type": "DEPENDENT",
+            "key": "dgx.summary[page_cache]",
+            "delay": "0",
+            "history": "7d",
+            "value_type": "FLOAT",
+            "preprocessing": [
+              {
+                "type": "JSONPATH",
+                "parameters": [
+                  "$.summary.page_cache"
+                ],
+                "error_handler": "DISCARD_VALUE"
+              }
+            ],
+            "master_item": {
+              "key": "dgx.telemetry"
+            },
+            "tags": [
+              {
+                "tag": "component",
+                "value": "system"
+              }
+            ],
+            "units": "B"
+          },
+          {
+            "uuid": "367b2802ef404cd199951bf3cea6167f",
+            "name": "DGX: Detected engine endpoints",
+            "type": "DEPENDENT",
+            "key": "dgx.summary[engines_detected]",
+            "delay": "0",
+            "history": "7d",
+            "value_type": "FLOAT",
+            "preprocessing": [
+              {
+                "type": "JSONPATH",
+                "parameters": [
+                  "$.summary.engines_detected"
+                ],
+                "error_handler": "DISCARD_VALUE"
+              }
+            ],
+            "master_item": {
+              "key": "dgx.telemetry"
+            },
+            "tags": [
+              {
+                "tag": "component",
+                "value": "system"
+              }
+            ]
+          },
+          {
+            "uuid": "69fc0c462b824f55808831a29b673b07",
+            "name": "DGX: Active engine endpoints",
+            "type": "DEPENDENT",
+            "key": "dgx.summary[engines_active]",
+            "delay": "0",
+            "history": "7d",
+            "value_type": "FLOAT",
+            "preprocessing": [
+              {
+                "type": "JSONPATH",
+                "parameters": [
+                  "$.summary.engines_active"
+                ],
+                "error_handler": "DISCARD_VALUE"
+              }
+            ],
+            "master_item": {
+              "key": "dgx.telemetry"
+            },
+            "tags": [
+              {
+                "tag": "component",
+                "value": "system"
+              }
+            ]
+          },
+          {
+            "uuid": "f53af72b79e54a258623e851e41400cc",
+            "name": "DGX: Root filesystem used space",
+            "type": "DEPENDENT",
+            "key": "dgx.summary[root_used]",
+            "delay": "0",
+            "history": "7d",
+            "value_type": "FLOAT",
+            "preprocessing": [
+              {
+                "type": "JSONPATH",
+                "parameters": [
+                  "$.summary.root_used"
+                ],
+                "error_handler": "DISCARD_VALUE"
+              }
+            ],
+            "master_item": {
+              "key": "dgx.telemetry"
+            },
+            "tags": [
+              {
+                "tag": "component",
+                "value": "system"
+              }
+            ],
+            "units": "B"
+          },
+          {
+            "uuid": "d69f223d65ca439abd2bb6e90b6e777b",
+            "name": "DGX: Root filesystem free space including reserved",
+            "type": "DEPENDENT",
+            "key": "dgx.summary[root_free]",
+            "delay": "0",
+            "history": "7d",
+            "value_type": "FLOAT",
+            "preprocessing": [
+              {
+                "type": "JSONPATH",
+                "parameters": [
+                  "$.summary.root_free"
+                ],
+                "error_handler": "DISCARD_VALUE"
+              }
+            ],
+            "master_item": {
+              "key": "dgx.telemetry"
+            },
+            "tags": [
+              {
+                "tag": "component",
+                "value": "system"
+              }
+            ],
+            "units": "B"
+          },
+          {
+            "uuid": "02f41d8df7624a659942f6987d107240",
+            "name": "DGX: Root filesystem total space",
+            "type": "DEPENDENT",
+            "key": "dgx.summary[root_total]",
+            "delay": "0",
+            "history": "7d",
+            "value_type": "FLOAT",
+            "preprocessing": [
+              {
+                "type": "JSONPATH",
+                "parameters": [
+                  "$.summary.root_total"
+                ],
+                "error_handler": "DISCARD_VALUE"
+              }
+            ],
+            "master_item": {
+              "key": "dgx.telemetry"
+            },
+            "tags": [
+              {
+                "tag": "component",
+                "value": "system"
+              }
+            ],
+            "units": "B"
+          },
+          {
+            "uuid": "e7634279487542ddb94b4fe81cfff434",
+            "name": "DGX: Network IN (selected interfaces)",
+            "type": "DEPENDENT",
+            "key": "dgx.summary[network_rx_bps]",
+            "delay": "0",
+            "history": "7d",
+            "value_type": "FLOAT",
+            "preprocessing": [
+              {
+                "type": "JSONPATH",
+                "parameters": [
+                  "$.summary.network_rx_bps"
+                ],
+                "error_handler": "DISCARD_VALUE"
+              }
+            ],
+            "master_item": {
+              "key": "dgx.telemetry"
+            },
+            "tags": [
+              {
+                "tag": "component",
+                "value": "system"
+              }
+            ],
+            "units": "bps"
+          },
+          {
+            "uuid": "2ad299b823c44212809e4b6cf97338e3",
+            "name": "DGX: Network OUT (selected interfaces)",
+            "type": "DEPENDENT",
+            "key": "dgx.summary[network_tx_bps]",
+            "delay": "0",
+            "history": "7d",
+            "value_type": "FLOAT",
+            "preprocessing": [
+              {
+                "type": "JSONPATH",
+                "parameters": [
+                  "$.summary.network_tx_bps"
+                ],
+                "error_handler": "DISCARD_VALUE"
+              }
+            ],
+            "master_item": {
+              "key": "dgx.telemetry"
+            },
+            "tags": [
+              {
+                "tag": "component",
+                "value": "system"
+              }
+            ],
+            "units": "bps"
+          },
+          {
+            "uuid": "ab72e24f38cc4a9ea1f37452c6455280",
+            "name": "DGX: Disk read (selected devices)",
+            "type": "DEPENDENT",
+            "key": "dgx.summary[disk_read_bps]",
+            "delay": "0",
+            "history": "7d",
+            "value_type": "FLOAT",
+            "preprocessing": [
+              {
+                "type": "JSONPATH",
+                "parameters": [
+                  "$.summary.disk_read_bps"
+                ],
+                "error_handler": "DISCARD_VALUE"
+              }
+            ],
+            "master_item": {
+              "key": "dgx.telemetry"
+            },
+            "tags": [
+              {
+                "tag": "component",
+                "value": "system"
+              }
+            ],
+            "units": "Bps"
+          },
+          {
+            "uuid": "7b6a581c8ef84cc68d3782f79c55b47b",
+            "name": "DGX: Disk write (selected devices)",
+            "type": "DEPENDENT",
+            "key": "dgx.summary[disk_write_bps]",
+            "delay": "0",
+            "history": "7d",
+            "value_type": "FLOAT",
+            "preprocessing": [
+              {
+                "type": "JSONPATH",
+                "parameters": [
+                  "$.summary.disk_write_bps"
+                ],
+                "error_handler": "DISCARD_VALUE"
+              }
+            ],
+            "master_item": {
+              "key": "dgx.telemetry"
+            },
+            "tags": [
+              {
+                "tag": "component",
+                "value": "system"
+              }
+            ],
+            "units": "Bps"
+          },
+          {
+            "uuid": "4d078cb451ff4e65ac5f9e559329af5b",
+            "name": "DGX: directory sizes ranked descending",
+            "type": "DEPENDENT",
+            "key": "dgx.directory.ranking",
+            "delay": "0",
+            "history": "7d",
+            "value_type": "TEXT",
+            "preprocessing": [
+              {
+                "type": "JSONPATH",
+                "parameters": [
+                  "$.directory_ranking"
+                ],
+                "error_handler": "DISCARD_VALUE"
+              }
+            ],
+            "master_item": {
+              "key": "dgx.telemetry"
+            },
+            "tags": [
+              {
+                "tag": "component",
+                "value": "cache"
+              }
+            ],
+            "trends": "0"
+          },
+          {
+            "uuid": "91773c903e28439cb17a1aa40bcbc022",
+            "name": "DGX: host snapshot age",
+            "type": "DEPENDENT",
+            "key": "dgx.snapshot.age",
+            "delay": "0",
+            "history": "7d",
+            "value_type": "FLOAT",
+            "preprocessing": [
+              {
+                "type": "JSONPATH",
+                "parameters": [
+                  "$.timestamp"
+                ],
+                "error_handler": "DISCARD_VALUE"
+              },
+              {
+                "type": "JAVASCRIPT",
+                "parameters": [
+                  "return Math.max(0, Math.floor(Date.now() / 1000 - Number(value))); "
+                ]
+              }
+            ],
+            "master_item": {
+              "key": "dgx.telemetry"
+            },
+            "tags": [
+              {
+                "tag": "component",
+                "value": "collector"
+              }
+            ],
+            "units": "s"
+          }
+        ],
+        "discovery_rules": [
+          {
+            "uuid": "59a67fa1320b48009cc7059d06d53772",
+            "name": "DGX: discover system.NONE",
+            "type": "DEPENDENT",
+            "key": "dgx.discovery[system.NONE]",
+            "delay": "0",
+            "lifetime": "30d",
+            "master_item": {
+              "key": "dgx.telemetry"
+            },
+            "preprocessing": [
+              {
+                "type": "JSONPATH",
+                "parameters": [
+                  "$.discovery.system"
+                ],
+                "error_handler": "DISCARD_VALUE"
+              },
+              {
+                "type": "JAVASCRIPT",
+                "parameters": [
+                  "return JSON.stringify(JSON.parse(value).filter(function(x) { return x[\"{#PROFILE}\"] === \"NONE\"; }));"
+                ]
+              },
+              {
+                "type": "DISCARD_UNCHANGED_HEARTBEAT",
+                "parameters": [
+                  "1h"
+                ]
+              }
+            ],
+            "item_prototypes": [
+              {
+                "uuid": "c29d3d1b47e54130808fd943298d286d",
+                "name": "{#LABEL}",
+                "type": "DEPENDENT",
+                "key": "dgx.metric[system.NONE,{#ID}]",
+                "delay": "0",
+                "history": "7d",
+                "value_type": "FLOAT",
+                "preprocessing": [
+                  {
+                    "type": "JSONPATH",
+                    "parameters": [
+                      "$.metrics['{#ID}']"
+                    ],
+                    "error_handler": "DISCARD_VALUE"
+                  }
+                ],
+                "master_item": {
+                  "key": "dgx.telemetry"
+                },
+                "tags": [
+                  {
+                    "tag": "component",
+                    "value": "system"
+                  }
+                ],
+                "units": "{#UNIT}",
+                "description": "Host metric. Missing readings are discarded; N/A is never converted to zero.",
+                "trigger_prototypes": [
+                  {
+                    "uuid": "830749d25ba44278b9308d8139ae83cb",
+                    "expression": "nodata(/DGX Spark GB10 by host collector/dgx.metric[system.NONE,{#ID}],{$DGX.METRIC.STALE})=1 and fuzzytime(/DGX Spark GB10 by host collector/dgx.timestamp,{$DGX.STALE})=1",
+                    "name": "DGX: no readings for {#LABEL}",
+                    "priority": "WARNING",
+                    "tags": [
+                      {
+                        "tag": "scope",
+                        "value": "availability"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ],
+            "graph_prototypes": [
+              {
+                "uuid": "bbc9c8043d6244f6985f7a71b513ce4a",
+                "name": "DGX system.NONE: {#LABEL} [{#ID}]",
+                "graph_items": [
+                  {
+                    "color": "199C0D",
+                    "item": {
+                      "host": "DGX Spark GB10 by host collector",
+                      "key": "dgx.metric[system.NONE,{#ID}]"
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "uuid": "9cc63c098f1147138510c7d83f35b8c2",
+            "name": "DGX: discover system.MEM.WARN",
+            "type": "DEPENDENT",
+            "key": "dgx.discovery[system.MEM.WARN]",
+            "delay": "0",
+            "lifetime": "30d",
+            "master_item": {
+              "key": "dgx.telemetry"
+            },
+            "preprocessing": [
+              {
+                "type": "JSONPATH",
+                "parameters": [
+                  "$.discovery.system"
+                ],
+                "error_handler": "DISCARD_VALUE"
+              },
+              {
+                "type": "JAVASCRIPT",
+                "parameters": [
+                  "return JSON.stringify(JSON.parse(value).filter(function(x) { return x[\"{#PROFILE}\"] === \"MEM.WARN\"; }));"
+                ]
+              },
+              {
+                "type": "DISCARD_UNCHANGED_HEARTBEAT",
+                "parameters": [
+                  "1h"
+                ]
+              }
+            ],
+            "item_prototypes": [
+              {
+                "uuid": "c2c2776c3cae41d6ad9a709f24521082",
+                "name": "{#LABEL}",
+                "type": "DEPENDENT",
+                "key": "dgx.metric[system.MEM.WARN,{#ID}]",
+                "delay": "0",
+                "history": "7d",
+                "value_type": "FLOAT",
+                "preprocessing": [
+                  {
+                    "type": "JSONPATH",
+                    "parameters": [
+                      "$.metrics['{#ID}']"
+                    ],
+                    "error_handler": "DISCARD_VALUE"
+                  }
+                ],
+                "master_item": {
+                  "key": "dgx.telemetry"
+                },
+                "tags": [
+                  {
+                    "tag": "component",
+                    "value": "system"
+                  }
+                ],
+                "units": "{#UNIT}",
+                "description": "Host metric. Missing readings are discarded; N/A is never converted to zero.",
+                "trigger_prototypes": [
+                  {
+                    "uuid": "d36353c02da84bce99cd530c015683f0",
+                    "expression": "nodata(/DGX Spark GB10 by host collector/dgx.metric[system.MEM.WARN,{#ID}],{$DGX.METRIC.STALE})=1 and fuzzytime(/DGX Spark GB10 by host collector/dgx.timestamp,{$DGX.STALE})=1",
+                    "name": "DGX: no readings for {#LABEL}",
+                    "priority": "WARNING",
+                    "tags": [
+                      {
+                        "tag": "scope",
+                        "value": "availability"
+                      }
+                    ]
+                  },
+                  {
+                    "uuid": "9bf171d1421d44fa8166e9652d7129a0",
+                    "expression": "min(/DGX Spark GB10 by host collector/dgx.metric[system.MEM.WARN,{#ID}],{$DGX.WINDOW})>{$DGX.MEM.WARN:\"{#ID}\"} and count(/DGX Spark GB10 by host collector/dgx.metric[system.MEM.WARN,{#ID}],{$DGX.WINDOW})>=3 and fuzzytime(/DGX Spark GB10 by host collector/dgx.timestamp,{$DGX.STALE})=1",
+                    "name": "DGX: {#LABEL} sustained threshold violation",
+                    "priority": "WARNING",
+                    "tags": [
+                      {
+                        "tag": "scope",
+                        "value": "performance"
+                      }
+                    ],
+                    "recovery_mode": "RECOVERY_EXPRESSION",
+                    "recovery_expression": "last(/DGX Spark GB10 by host collector/dgx.metric[system.MEM.WARN,{#ID}])<={$DGX.MEM.WARN.RECOVERY:\"{#ID}\"}"
+                  }
+                ]
+              }
+            ],
+            "graph_prototypes": [
+              {
+                "uuid": "3317055e103549048aa243292554dffc",
+                "name": "DGX system.MEM.WARN: {#LABEL} [{#ID}]",
+                "graph_items": [
+                  {
+                    "color": "199C0D",
+                    "item": {
+                      "host": "DGX Spark GB10 by host collector",
+                      "key": "dgx.metric[system.MEM.WARN,{#ID}]"
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "uuid": "8c082fc52bb84e4898a71fc1ad2c5ecb",
+            "name": "DGX: discover system.SWAP.WARN",
+            "type": "DEPENDENT",
+            "key": "dgx.discovery[system.SWAP.WARN]",
+            "delay": "0",
+            "lifetime": "30d",
+            "master_item": {
+              "key": "dgx.telemetry"
+            },
+            "preprocessing": [
+              {
+                "type": "JSONPATH",
+                "parameters": [
+                  "$.discovery.system"
+                ],
+                "error_handler": "DISCARD_VALUE"
+              },
+              {
+                "type": "JAVASCRIPT",
+                "parameters": [
+                  "return JSON.stringify(JSON.parse(value).filter(function(x) { return x[\"{#PROFILE}\"] === \"SWAP.WARN\"; }));"
+                ]
+              },
+              {
+                "type": "DISCARD_UNCHANGED_HEARTBEAT",
+                "parameters": [
+                  "1h"
+                ]
+              }
+            ],
+            "item_prototypes": [
+              {
+                "uuid": "9eb1e7c0629b4c0892a53d28d6f990d8",
+                "name": "{#LABEL}",
+                "type": "DEPENDENT",
+                "key": "dgx.metric[system.SWAP.WARN,{#ID}]",
+                "delay": "0",
+                "history": "7d",
+                "value_type": "FLOAT",
+                "preprocessing": [
+                  {
+                    "type": "JSONPATH",
+                    "parameters": [
+                      "$.metrics['{#ID}']"
+                    ],
+                    "error_handler": "DISCARD_VALUE"
+                  }
+                ],
+                "master_item": {
+                  "key": "dgx.telemetry"
+                },
+                "tags": [
+                  {
+                    "tag": "component",
+                    "value": "system"
+                  }
+                ],
+                "units": "{#UNIT}",
+                "description": "Host metric. Missing readings are discarded; N/A is never converted to zero.",
+                "trigger_prototypes": [
+                  {
+                    "uuid": "2cfdf3e8cb05462fbe33ccf438529d7e",
+                    "expression": "nodata(/DGX Spark GB10 by host collector/dgx.metric[system.SWAP.WARN,{#ID}],{$DGX.METRIC.STALE})=1 and fuzzytime(/DGX Spark GB10 by host collector/dgx.timestamp,{$DGX.STALE})=1",
+                    "name": "DGX: no readings for {#LABEL}",
+                    "priority": "WARNING",
+                    "tags": [
+                      {
+                        "tag": "scope",
+                        "value": "availability"
+                      }
+                    ]
+                  },
+                  {
+                    "uuid": "5ebdf675e12e41469717bbadfb2cf263",
+                    "expression": "min(/DGX Spark GB10 by host collector/dgx.metric[system.SWAP.WARN,{#ID}],{$DGX.WINDOW})>{$DGX.SWAP.WARN:\"{#ID}\"} and count(/DGX Spark GB10 by host collector/dgx.metric[system.SWAP.WARN,{#ID}],{$DGX.WINDOW})>=3 and fuzzytime(/DGX Spark GB10 by host collector/dgx.timestamp,{$DGX.STALE})=1",
+                    "name": "DGX: {#LABEL} sustained threshold violation",
+                    "priority": "WARNING",
+                    "tags": [
+                      {
+                        "tag": "scope",
+                        "value": "performance"
+                      }
+                    ],
+                    "recovery_mode": "RECOVERY_EXPRESSION",
+                    "recovery_expression": "last(/DGX Spark GB10 by host collector/dgx.metric[system.SWAP.WARN,{#ID}])<={$DGX.SWAP.WARN.RECOVERY:\"{#ID}\"}"
+                  }
+                ]
+              }
+            ],
+            "graph_prototypes": [
+              {
+                "uuid": "8f9b4a0d38004d66903a783b975cbf65",
+                "name": "DGX system.SWAP.WARN: {#LABEL} [{#ID}]",
+                "graph_items": [
+                  {
+                    "color": "199C0D",
+                    "item": {
+                      "host": "DGX Spark GB10 by host collector",
+                      "key": "dgx.metric[system.SWAP.WARN,{#ID}]"
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "uuid": "48bc8da50d8b4f0ba978c26049a962a8",
+            "name": "DGX: discover system.CPU.WARN",
+            "type": "DEPENDENT",
+            "key": "dgx.discovery[system.CPU.WARN]",
+            "delay": "0",
+            "lifetime": "30d",
+            "master_item": {
+              "key": "dgx.telemetry"
+            },
+            "preprocessing": [
+              {
+                "type": "JSONPATH",
+                "parameters": [
+                  "$.discovery.system"
+                ],
+                "error_handler": "DISCARD_VALUE"
+              },
+              {
+                "type": "JAVASCRIPT",
+                "parameters": [
+                  "return JSON.stringify(JSON.parse(value).filter(function(x) { return x[\"{#PROFILE}\"] === \"CPU.WARN\"; }));"
+                ]
+              },
+              {
+                "type": "DISCARD_UNCHANGED_HEARTBEAT",
+                "parameters": [
+                  "1h"
+                ]
+              }
+            ],
+            "item_prototypes": [
+              {
+                "uuid": "422a62fe5ce14a02a653f05a60c6b93a",
+                "name": "{#LABEL}",
+                "type": "DEPENDENT",
+                "key": "dgx.metric[system.CPU.WARN,{#ID}]",
+                "delay": "0",
+                "history": "7d",
+                "value_type": "FLOAT",
+                "preprocessing": [
+                  {
+                    "type": "JSONPATH",
+                    "parameters": [
+                      "$.metrics['{#ID}']"
+                    ],
+                    "error_handler": "DISCARD_VALUE"
+                  }
+                ],
+                "master_item": {
+                  "key": "dgx.telemetry"
+                },
+                "tags": [
+                  {
+                    "tag": "component",
+                    "value": "system"
+                  }
+                ],
+                "units": "{#UNIT}",
+                "description": "Host metric. Missing readings are discarded; N/A is never converted to zero.",
+                "trigger_prototypes": [
+                  {
+                    "uuid": "5aee9839593242ce8b7945d85e7be780",
+                    "expression": "nodata(/DGX Spark GB10 by host collector/dgx.metric[system.CPU.WARN,{#ID}],{$DGX.METRIC.STALE})=1 and fuzzytime(/DGX Spark GB10 by host collector/dgx.timestamp,{$DGX.STALE})=1",
+                    "name": "DGX: no readings for {#LABEL}",
+                    "priority": "WARNING",
+                    "tags": [
+                      {
+                        "tag": "scope",
+                        "value": "availability"
+                      }
+                    ]
+                  },
+                  {
+                    "uuid": "4055df89952b4bd4b9163270934564ff",
+                    "expression": "min(/DGX Spark GB10 by host collector/dgx.metric[system.CPU.WARN,{#ID}],{$DGX.WINDOW})>{$DGX.CPU.WARN:\"{#ID}\"} and count(/DGX Spark GB10 by host collector/dgx.metric[system.CPU.WARN,{#ID}],{$DGX.WINDOW})>=3 and fuzzytime(/DGX Spark GB10 by host collector/dgx.timestamp,{$DGX.STALE})=1",
+                    "name": "DGX: {#LABEL} sustained threshold violation",
+                    "priority": "WARNING",
+                    "tags": [
+                      {
+                        "tag": "scope",
+                        "value": "performance"
+                      }
+                    ],
+                    "recovery_mode": "RECOVERY_EXPRESSION",
+                    "recovery_expression": "last(/DGX Spark GB10 by host collector/dgx.metric[system.CPU.WARN,{#ID}])<={$DGX.CPU.WARN.RECOVERY:\"{#ID}\"}"
+                  }
+                ]
+              }
+            ],
+            "graph_prototypes": [
+              {
+                "uuid": "37afbf4e81db420b8d4e1899616c7131",
+                "name": "DGX system.CPU.WARN: {#LABEL} [{#ID}]",
+                "graph_items": [
+                  {
+                    "color": "199C0D",
+                    "item": {
+                      "host": "DGX Spark GB10 by host collector",
+                      "key": "dgx.metric[system.CPU.WARN,{#ID}]"
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "uuid": "86a6ab23ee664f9887791b80e2beba0d",
+            "name": "DGX: discover gpu.NONE",
+            "type": "DEPENDENT",
+            "key": "dgx.discovery[gpu.NONE]",
+            "delay": "0",
+            "lifetime": "30d",
+            "master_item": {
+              "key": "dgx.telemetry"
+            },
+            "preprocessing": [
+              {
+                "type": "JSONPATH",
+                "parameters": [
+                  "$.discovery.gpu"
+                ],
+                "error_handler": "DISCARD_VALUE"
+              },
+              {
+                "type": "JAVASCRIPT",
+                "parameters": [
+                  "return JSON.stringify(JSON.parse(value).filter(function(x) { return x[\"{#PROFILE}\"] === \"NONE\"; }));"
+                ]
+              },
+              {
+                "type": "DISCARD_UNCHANGED_HEARTBEAT",
+                "parameters": [
+                  "1h"
+                ]
+              }
+            ],
+            "item_prototypes": [
+              {
+                "uuid": "4bdad9af9c9b469fb5b4a55cafdadba4",
+                "name": "{#LABEL}",
+                "type": "DEPENDENT",
+                "key": "dgx.metric[gpu.NONE,{#ID}]",
+                "delay": "0",
+                "history": "7d",
+                "value_type": "FLOAT",
+                "preprocessing": [
+                  {
+                    "type": "JSONPATH",
+                    "parameters": [
+                      "$.metrics['{#ID}']"
+                    ],
+                    "error_handler": "DISCARD_VALUE"
+                  }
+                ],
+                "master_item": {
+                  "key": "dgx.telemetry"
+                },
+                "tags": [
+                  {
+                    "tag": "component",
+                    "value": "gpu"
+                  }
+                ],
+                "units": "{#UNIT}",
+                "description": "Host metric. Missing readings are discarded; N/A is never converted to zero.",
+                "trigger_prototypes": [
+                  {
+                    "uuid": "ebdd3a8f924d4ebebb3d3d7aa27521af",
+                    "expression": "nodata(/DGX Spark GB10 by host collector/dgx.metric[gpu.NONE,{#ID}],{$DGX.METRIC.STALE})=1 and fuzzytime(/DGX Spark GB10 by host collector/dgx.timestamp,{$DGX.STALE})=1",
+                    "name": "DGX: no readings for {#LABEL}",
+                    "priority": "WARNING",
+                    "tags": [
+                      {
+                        "tag": "scope",
+                        "value": "availability"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ],
+            "graph_prototypes": [
+              {
+                "uuid": "bcd10fa5852840caaf3014d339d49fc3",
+                "name": "DGX gpu.NONE: {#LABEL} [{#ID}]",
+                "graph_items": [
+                  {
+                    "color": "199C0D",
+                    "item": {
+                      "host": "DGX Spark GB10 by host collector",
+                      "key": "dgx.metric[gpu.NONE,{#ID}]"
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "uuid": "dd016b9509ad4ef6a41d3f08bfeb4085",
+            "name": "DGX: discover gpu.GPU.TEMP.WARN",
+            "type": "DEPENDENT",
+            "key": "dgx.discovery[gpu.GPU.TEMP.WARN]",
+            "delay": "0",
+            "lifetime": "30d",
+            "master_item": {
+              "key": "dgx.telemetry"
+            },
+            "preprocessing": [
+              {
+                "type": "JSONPATH",
+                "parameters": [
+                  "$.discovery.gpu"
+                ],
+                "error_handler": "DISCARD_VALUE"
+              },
+              {
+                "type": "JAVASCRIPT",
+                "parameters": [
+                  "return JSON.stringify(JSON.parse(value).filter(function(x) { return x[\"{#PROFILE}\"] === \"GPU.TEMP.WARN\"; }));"
+                ]
+              },
+              {
+                "type": "DISCARD_UNCHANGED_HEARTBEAT",
+                "parameters": [
+                  "1h"
+                ]
+              }
+            ],
+            "item_prototypes": [
+              {
+                "uuid": "70013ed5fd0946c899fb453cd280aff3",
+                "name": "{#LABEL}",
+                "type": "DEPENDENT",
+                "key": "dgx.metric[gpu.GPU.TEMP.WARN,{#ID}]",
+                "delay": "0",
+                "history": "7d",
+                "value_type": "FLOAT",
+                "preprocessing": [
+                  {
+                    "type": "JSONPATH",
+                    "parameters": [
+                      "$.metrics['{#ID}']"
+                    ],
+                    "error_handler": "DISCARD_VALUE"
+                  }
+                ],
+                "master_item": {
+                  "key": "dgx.telemetry"
+                },
+                "tags": [
+                  {
+                    "tag": "component",
+                    "value": "gpu"
+                  }
+                ],
+                "units": "{#UNIT}",
+                "description": "Host metric. Missing readings are discarded; N/A is never converted to zero.",
+                "trigger_prototypes": [
+                  {
+                    "uuid": "2dbaf36f39094846ae2fc24e50ef4afe",
+                    "expression": "nodata(/DGX Spark GB10 by host collector/dgx.metric[gpu.GPU.TEMP.WARN,{#ID}],{$DGX.METRIC.STALE})=1 and fuzzytime(/DGX Spark GB10 by host collector/dgx.timestamp,{$DGX.STALE})=1",
+                    "name": "DGX: no readings for {#LABEL}",
+                    "priority": "WARNING",
+                    "tags": [
+                      {
+                        "tag": "scope",
+                        "value": "availability"
+                      }
+                    ]
+                  },
+                  {
+                    "uuid": "1c9306fdcd0f4aa3acfd15e237530a92",
+                    "expression": "min(/DGX Spark GB10 by host collector/dgx.metric[gpu.GPU.TEMP.WARN,{#ID}],{$DGX.WINDOW})>{$DGX.GPU.TEMP.WARN:\"{#ID}\"} and count(/DGX Spark GB10 by host collector/dgx.metric[gpu.GPU.TEMP.WARN,{#ID}],{$DGX.WINDOW})>=3 and fuzzytime(/DGX Spark GB10 by host collector/dgx.timestamp,{$DGX.STALE})=1",
+                    "name": "DGX: {#LABEL} sustained threshold violation",
+                    "priority": "WARNING",
+                    "tags": [
+                      {
+                        "tag": "scope",
+                        "value": "performance"
+                      }
+                    ],
+                    "recovery_mode": "RECOVERY_EXPRESSION",
+                    "recovery_expression": "last(/DGX Spark GB10 by host collector/dgx.metric[gpu.GPU.TEMP.WARN,{#ID}])<={$DGX.GPU.TEMP.WARN.RECOVERY:\"{#ID}\"}"
+                  }
+                ]
+              }
+            ],
+            "graph_prototypes": [
+              {
+                "uuid": "d624dbc870f1475f93fb4de469ed3c0d",
+                "name": "DGX gpu.GPU.TEMP.WARN: {#LABEL} [{#ID}]",
+                "graph_items": [
+                  {
+                    "color": "199C0D",
+                    "item": {
+                      "host": "DGX Spark GB10 by host collector",
+                      "key": "dgx.metric[gpu.GPU.TEMP.WARN,{#ID}]"
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "uuid": "4f017ca2536b4aeab5fe06c6c67f5721",
+            "name": "DGX: discover gpu.POWER.WARN",
+            "type": "DEPENDENT",
+            "key": "dgx.discovery[gpu.POWER.WARN]",
+            "delay": "0",
+            "lifetime": "30d",
+            "master_item": {
+              "key": "dgx.telemetry"
+            },
+            "preprocessing": [
+              {
+                "type": "JSONPATH",
+                "parameters": [
+                  "$.discovery.gpu"
+                ],
+                "error_handler": "DISCARD_VALUE"
+              },
+              {
+                "type": "JAVASCRIPT",
+                "parameters": [
+                  "return JSON.stringify(JSON.parse(value).filter(function(x) { return x[\"{#PROFILE}\"] === \"POWER.WARN\"; }));"
+                ]
+              },
+              {
+                "type": "DISCARD_UNCHANGED_HEARTBEAT",
+                "parameters": [
+                  "1h"
+                ]
+              }
+            ],
+            "item_prototypes": [
+              {
+                "uuid": "b6ecdbef1625413c9b46a5931c885769",
+                "name": "{#LABEL}",
+                "type": "DEPENDENT",
+                "key": "dgx.metric[gpu.POWER.WARN,{#ID}]",
+                "delay": "0",
+                "history": "7d",
+                "value_type": "FLOAT",
+                "preprocessing": [
+                  {
+                    "type": "JSONPATH",
+                    "parameters": [
+                      "$.metrics['{#ID}']"
+                    ],
+                    "error_handler": "DISCARD_VALUE"
+                  }
+                ],
+                "master_item": {
+                  "key": "dgx.telemetry"
+                },
+                "tags": [
+                  {
+                    "tag": "component",
+                    "value": "gpu"
+                  }
+                ],
+                "units": "{#UNIT}",
+                "description": "Host metric. Missing readings are discarded; N/A is never converted to zero.",
+                "trigger_prototypes": [
+                  {
+                    "uuid": "1acab3ede475428fb48802b25af14d6a",
+                    "expression": "nodata(/DGX Spark GB10 by host collector/dgx.metric[gpu.POWER.WARN,{#ID}],{$DGX.METRIC.STALE})=1 and fuzzytime(/DGX Spark GB10 by host collector/dgx.timestamp,{$DGX.STALE})=1",
+                    "name": "DGX: no readings for {#LABEL}",
+                    "priority": "WARNING",
+                    "tags": [
+                      {
+                        "tag": "scope",
+                        "value": "availability"
+                      }
+                    ]
+                  },
+                  {
+                    "uuid": "b2a11d533ff0457da5e2db79146abecb",
+                    "expression": "min(/DGX Spark GB10 by host collector/dgx.metric[gpu.POWER.WARN,{#ID}],{$DGX.WINDOW})>{$DGX.POWER.WARN:\"{#ID}\"} and count(/DGX Spark GB10 by host collector/dgx.metric[gpu.POWER.WARN,{#ID}],{$DGX.WINDOW})>=3 and fuzzytime(/DGX Spark GB10 by host collector/dgx.timestamp,{$DGX.STALE})=1",
+                    "name": "DGX: {#LABEL} sustained threshold violation",
+                    "priority": "WARNING",
+                    "tags": [
+                      {
+                        "tag": "scope",
+                        "value": "performance"
+                      }
+                    ],
+                    "recovery_mode": "RECOVERY_EXPRESSION",
+                    "recovery_expression": "last(/DGX Spark GB10 by host collector/dgx.metric[gpu.POWER.WARN,{#ID}])<={$DGX.POWER.WARN.RECOVERY:\"{#ID}\"}"
+                  }
+                ]
+              }
+            ],
+            "graph_prototypes": [
+              {
+                "uuid": "e49ed416ce6540d28d547195491738ce",
+                "name": "DGX gpu.POWER.WARN: {#LABEL} [{#ID}]",
+                "graph_items": [
+                  {
+                    "color": "199C0D",
+                    "item": {
+                      "host": "DGX Spark GB10 by host collector",
+                      "key": "dgx.metric[gpu.POWER.WARN,{#ID}]"
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "uuid": "6fd54773d1ab44b7b51e9a0b00279523",
+            "name": "DGX: discover sensors.NONE",
+            "type": "DEPENDENT",
+            "key": "dgx.discovery[sensors.NONE]",
+            "delay": "0",
+            "lifetime": "30d",
+            "master_item": {
+              "key": "dgx.telemetry"
+            },
+            "preprocessing": [
+              {
+                "type": "JSONPATH",
+                "parameters": [
+                  "$.discovery.sensors"
+                ],
+                "error_handler": "DISCARD_VALUE"
+              },
+              {
+                "type": "JAVASCRIPT",
+                "parameters": [
+                  "return JSON.stringify(JSON.parse(value).filter(function(x) { return x[\"{#PROFILE}\"] === \"NONE\"; }));"
+                ]
+              },
+              {
+                "type": "DISCARD_UNCHANGED_HEARTBEAT",
+                "parameters": [
+                  "1h"
+                ]
+              }
+            ],
+            "item_prototypes": [
+              {
+                "uuid": "08e56da230564e37a1f6376321949a27",
+                "name": "{#LABEL}",
+                "type": "DEPENDENT",
+                "key": "dgx.metric[sensors.NONE,{#ID}]",
+                "delay": "0",
+                "history": "7d",
+                "value_type": "FLOAT",
+                "preprocessing": [
+                  {
+                    "type": "JSONPATH",
+                    "parameters": [
+                      "$.metrics['{#ID}']"
+                    ],
+                    "error_handler": "DISCARD_VALUE"
+                  }
+                ],
+                "master_item": {
+                  "key": "dgx.telemetry"
+                },
+                "tags": [
+                  {
+                    "tag": "component",
+                    "value": "sensors"
+                  }
+                ],
+                "units": "{#UNIT}",
+                "description": "Host metric. Missing readings are discarded; N/A is never converted to zero.",
+                "trigger_prototypes": [
+                  {
+                    "uuid": "f5aae0936d8741b9a915599b3efd2411",
+                    "expression": "nodata(/DGX Spark GB10 by host collector/dgx.metric[sensors.NONE,{#ID}],{$DGX.METRIC.STALE})=1 and fuzzytime(/DGX Spark GB10 by host collector/dgx.timestamp,{$DGX.STALE})=1",
+                    "name": "DGX: no readings for {#LABEL}",
+                    "priority": "WARNING",
+                    "tags": [
+                      {
+                        "tag": "scope",
+                        "value": "availability"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ],
+            "graph_prototypes": [
+              {
+                "uuid": "8b237412b9534ef3aa8bca2dfd199801",
+                "name": "DGX sensors.NONE: {#LABEL} [{#ID}]",
+                "graph_items": [
+                  {
+                    "color": "199C0D",
+                    "item": {
+                      "host": "DGX Spark GB10 by host collector",
+                      "key": "dgx.metric[sensors.NONE,{#ID}]"
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "uuid": "5a9205f025304164b5a5cbb5d9e7abfa",
+            "name": "DGX: discover sensors.SENSOR.TEMP.WARN",
+            "type": "DEPENDENT",
+            "key": "dgx.discovery[sensors.SENSOR.TEMP.WARN]",
+            "delay": "0",
+            "lifetime": "30d",
+            "master_item": {
+              "key": "dgx.telemetry"
+            },
+            "preprocessing": [
+              {
+                "type": "JSONPATH",
+                "parameters": [
+                  "$.discovery.sensors"
+                ],
+                "error_handler": "DISCARD_VALUE"
+              },
+              {
+                "type": "JAVASCRIPT",
+                "parameters": [
+                  "return JSON.stringify(JSON.parse(value).filter(function(x) { return x[\"{#PROFILE}\"] === \"SENSOR.TEMP.WARN\"; }));"
+                ]
+              },
+              {
+                "type": "DISCARD_UNCHANGED_HEARTBEAT",
+                "parameters": [
+                  "1h"
+                ]
+              }
+            ],
+            "item_prototypes": [
+              {
+                "uuid": "61f5e5962e5041569b42164d517bc0c4",
+                "name": "{#LABEL}",
+                "type": "DEPENDENT",
+                "key": "dgx.metric[sensors.SENSOR.TEMP.WARN,{#ID}]",
+                "delay": "0",
+                "history": "7d",
+                "value_type": "FLOAT",
+                "preprocessing": [
+                  {
+                    "type": "JSONPATH",
+                    "parameters": [
+                      "$.metrics['{#ID}']"
+                    ],
+                    "error_handler": "DISCARD_VALUE"
+                  }
+                ],
+                "master_item": {
+                  "key": "dgx.telemetry"
+                },
+                "tags": [
+                  {
+                    "tag": "component",
+                    "value": "sensors"
+                  }
+                ],
+                "units": "{#UNIT}",
+                "description": "Host metric. Missing readings are discarded; N/A is never converted to zero.",
+                "trigger_prototypes": [
+                  {
+                    "uuid": "66fa969a50994d5a9f42c082dc59557d",
+                    "expression": "nodata(/DGX Spark GB10 by host collector/dgx.metric[sensors.SENSOR.TEMP.WARN,{#ID}],{$DGX.METRIC.STALE})=1 and fuzzytime(/DGX Spark GB10 by host collector/dgx.timestamp,{$DGX.STALE})=1",
+                    "name": "DGX: no readings for {#LABEL}",
+                    "priority": "WARNING",
+                    "tags": [
+                      {
+                        "tag": "scope",
+                        "value": "availability"
+                      }
+                    ]
+                  },
+                  {
+                    "uuid": "1232c8d83b86463d890f2948db47141c",
+                    "expression": "min(/DGX Spark GB10 by host collector/dgx.metric[sensors.SENSOR.TEMP.WARN,{#ID}],{$DGX.WINDOW})>{$DGX.SENSOR.TEMP.WARN:\"{#ID}\"} and count(/DGX Spark GB10 by host collector/dgx.metric[sensors.SENSOR.TEMP.WARN,{#ID}],{$DGX.WINDOW})>=3 and fuzzytime(/DGX Spark GB10 by host collector/dgx.timestamp,{$DGX.STALE})=1",
+                    "name": "DGX: {#LABEL} sustained threshold violation",
+                    "priority": "WARNING",
+                    "tags": [
+                      {
+                        "tag": "scope",
+                        "value": "performance"
+                      }
+                    ],
+                    "recovery_mode": "RECOVERY_EXPRESSION",
+                    "recovery_expression": "last(/DGX Spark GB10 by host collector/dgx.metric[sensors.SENSOR.TEMP.WARN,{#ID}])<={$DGX.SENSOR.TEMP.WARN.RECOVERY:\"{#ID}\"}"
+                  }
+                ]
+              }
+            ],
+            "graph_prototypes": [
+              {
+                "uuid": "db7ab159bc9d45ba86579701e15b9217",
+                "name": "DGX sensors.SENSOR.TEMP.WARN: {#LABEL} [{#ID}]",
+                "graph_items": [
+                  {
+                    "color": "199C0D",
+                    "item": {
+                      "host": "DGX Spark GB10 by host collector",
+                      "key": "dgx.metric[sensors.SENSOR.TEMP.WARN,{#ID}]"
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "uuid": "28f439d95979476893fbe7b8475f396d",
+            "name": "DGX: discover filesystems.NONE",
+            "type": "DEPENDENT",
+            "key": "dgx.discovery[filesystems.NONE]",
+            "delay": "0",
+            "lifetime": "30d",
+            "master_item": {
+              "key": "dgx.telemetry"
+            },
+            "preprocessing": [
+              {
+                "type": "JSONPATH",
+                "parameters": [
+                  "$.discovery.filesystems"
+                ],
+                "error_handler": "DISCARD_VALUE"
+              },
+              {
+                "type": "JAVASCRIPT",
+                "parameters": [
+                  "return JSON.stringify(JSON.parse(value).filter(function(x) { return x[\"{#PROFILE}\"] === \"NONE\"; }));"
+                ]
+              },
+              {
+                "type": "DISCARD_UNCHANGED_HEARTBEAT",
+                "parameters": [
+                  "1h"
+                ]
+              }
+            ],
+            "item_prototypes": [
+              {
+                "uuid": "eaabea418dff493b95e6d8f3f1d70b6c",
+                "name": "{#LABEL}",
+                "type": "DEPENDENT",
+                "key": "dgx.metric[filesystems.NONE,{#ID}]",
+                "delay": "0",
+                "history": "7d",
+                "value_type": "FLOAT",
+                "preprocessing": [
+                  {
+                    "type": "JSONPATH",
+                    "parameters": [
+                      "$.metrics['{#ID}']"
+                    ],
+                    "error_handler": "DISCARD_VALUE"
+                  }
+                ],
+                "master_item": {
+                  "key": "dgx.telemetry"
+                },
+                "tags": [
+                  {
+                    "tag": "component",
+                    "value": "filesystems"
+                  }
+                ],
+                "units": "{#UNIT}",
+                "description": "Host metric. Missing readings are discarded; N/A is never converted to zero.",
+                "trigger_prototypes": [
+                  {
+                    "uuid": "9ca12e80f3f94024bc38fb7d533eac78",
+                    "expression": "nodata(/DGX Spark GB10 by host collector/dgx.metric[filesystems.NONE,{#ID}],{$DGX.METRIC.STALE})=1 and fuzzytime(/DGX Spark GB10 by host collector/dgx.timestamp,{$DGX.STALE})=1",
+                    "name": "DGX: no readings for {#LABEL}",
+                    "priority": "WARNING",
+                    "tags": [
+                      {
+                        "tag": "scope",
+                        "value": "availability"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ],
+            "graph_prototypes": [
+              {
+                "uuid": "68f0ea7d557246239067ef8871f8b4f0",
+                "name": "DGX filesystems.NONE: {#LABEL} [{#ID}]",
+                "graph_items": [
+                  {
+                    "color": "199C0D",
+                    "item": {
+                      "host": "DGX Spark GB10 by host collector",
+                      "key": "dgx.metric[filesystems.NONE,{#ID}]"
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "uuid": "113e4b6afcc84f6786541fb5ef9db1ae",
+            "name": "DGX: discover filesystems.FS.WARN",
+            "type": "DEPENDENT",
+            "key": "dgx.discovery[filesystems.FS.WARN]",
+            "delay": "0",
+            "lifetime": "30d",
+            "master_item": {
+              "key": "dgx.telemetry"
+            },
+            "preprocessing": [
+              {
+                "type": "JSONPATH",
+                "parameters": [
+                  "$.discovery.filesystems"
+                ],
+                "error_handler": "DISCARD_VALUE"
+              },
+              {
+                "type": "JAVASCRIPT",
+                "parameters": [
+                  "return JSON.stringify(JSON.parse(value).filter(function(x) { return x[\"{#PROFILE}\"] === \"FS.WARN\"; }));"
+                ]
+              },
+              {
+                "type": "DISCARD_UNCHANGED_HEARTBEAT",
+                "parameters": [
+                  "1h"
+                ]
+              }
+            ],
+            "item_prototypes": [
+              {
+                "uuid": "507a05f92ede4f188f869f688c0b8aca",
+                "name": "{#LABEL}",
+                "type": "DEPENDENT",
+                "key": "dgx.metric[filesystems.FS.WARN,{#ID}]",
+                "delay": "0",
+                "history": "7d",
+                "value_type": "FLOAT",
+                "preprocessing": [
+                  {
+                    "type": "JSONPATH",
+                    "parameters": [
+                      "$.metrics['{#ID}']"
+                    ],
+                    "error_handler": "DISCARD_VALUE"
+                  }
+                ],
+                "master_item": {
+                  "key": "dgx.telemetry"
+                },
+                "tags": [
+                  {
+                    "tag": "component",
+                    "value": "filesystems"
+                  }
+                ],
+                "units": "{#UNIT}",
+                "description": "Host metric. Missing readings are discarded; N/A is never converted to zero.",
+                "trigger_prototypes": [
+                  {
+                    "uuid": "311e99d82fa54f84ad55d032ea67393d",
+                    "expression": "nodata(/DGX Spark GB10 by host collector/dgx.metric[filesystems.FS.WARN,{#ID}],{$DGX.METRIC.STALE})=1 and fuzzytime(/DGX Spark GB10 by host collector/dgx.timestamp,{$DGX.STALE})=1",
+                    "name": "DGX: no readings for {#LABEL}",
+                    "priority": "WARNING",
+                    "tags": [
+                      {
+                        "tag": "scope",
+                        "value": "availability"
+                      }
+                    ]
+                  },
+                  {
+                    "uuid": "b29b7d92c50a4740bc412b4b26e058a0",
+                    "expression": "min(/DGX Spark GB10 by host collector/dgx.metric[filesystems.FS.WARN,{#ID}],{$DGX.WINDOW})>{$DGX.FS.WARN:\"{#ID}\"} and count(/DGX Spark GB10 by host collector/dgx.metric[filesystems.FS.WARN,{#ID}],{$DGX.WINDOW})>=3 and fuzzytime(/DGX Spark GB10 by host collector/dgx.timestamp,{$DGX.STALE})=1",
+                    "name": "DGX: {#LABEL} sustained threshold violation",
+                    "priority": "WARNING",
+                    "tags": [
+                      {
+                        "tag": "scope",
+                        "value": "performance"
+                      }
+                    ],
+                    "recovery_mode": "RECOVERY_EXPRESSION",
+                    "recovery_expression": "last(/DGX Spark GB10 by host collector/dgx.metric[filesystems.FS.WARN,{#ID}])<={$DGX.FS.WARN.RECOVERY:\"{#ID}\"}"
+                  }
+                ]
+              }
+            ],
+            "graph_prototypes": [
+              {
+                "uuid": "4f87ebbd9e694bae9c41fe1065e74412",
+                "name": "DGX filesystems.FS.WARN: {#LABEL} [{#ID}]",
+                "graph_items": [
+                  {
+                    "color": "199C0D",
+                    "item": {
+                      "host": "DGX Spark GB10 by host collector",
+                      "key": "dgx.metric[filesystems.FS.WARN,{#ID}]"
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "uuid": "e30b3b19dc9c41b7839ea29b067c0acb",
+            "name": "DGX: discover filesystems.INODE.WARN",
+            "type": "DEPENDENT",
+            "key": "dgx.discovery[filesystems.INODE.WARN]",
+            "delay": "0",
+            "lifetime": "30d",
+            "master_item": {
+              "key": "dgx.telemetry"
+            },
+            "preprocessing": [
+              {
+                "type": "JSONPATH",
+                "parameters": [
+                  "$.discovery.filesystems"
+                ],
+                "error_handler": "DISCARD_VALUE"
+              },
+              {
+                "type": "JAVASCRIPT",
+                "parameters": [
+                  "return JSON.stringify(JSON.parse(value).filter(function(x) { return x[\"{#PROFILE}\"] === \"INODE.WARN\"; }));"
+                ]
+              },
+              {
+                "type": "DISCARD_UNCHANGED_HEARTBEAT",
+                "parameters": [
+                  "1h"
+                ]
+              }
+            ],
+            "item_prototypes": [
+              {
+                "uuid": "ef8d47826aef4604bb802dfa095e9399",
+                "name": "{#LABEL}",
+                "type": "DEPENDENT",
+                "key": "dgx.metric[filesystems.INODE.WARN,{#ID}]",
+                "delay": "0",
+                "history": "7d",
+                "value_type": "FLOAT",
+                "preprocessing": [
+                  {
+                    "type": "JSONPATH",
+                    "parameters": [
+                      "$.metrics['{#ID}']"
+                    ],
+                    "error_handler": "DISCARD_VALUE"
+                  }
+                ],
+                "master_item": {
+                  "key": "dgx.telemetry"
+                },
+                "tags": [
+                  {
+                    "tag": "component",
+                    "value": "filesystems"
+                  }
+                ],
+                "units": "{#UNIT}",
+                "description": "Host metric. Missing readings are discarded; N/A is never converted to zero.",
+                "trigger_prototypes": [
+                  {
+                    "uuid": "d8b7e108f7d14ff388e8018e5ce700ea",
+                    "expression": "nodata(/DGX Spark GB10 by host collector/dgx.metric[filesystems.INODE.WARN,{#ID}],{$DGX.METRIC.STALE})=1 and fuzzytime(/DGX Spark GB10 by host collector/dgx.timestamp,{$DGX.STALE})=1",
+                    "name": "DGX: no readings for {#LABEL}",
+                    "priority": "WARNING",
+                    "tags": [
+                      {
+                        "tag": "scope",
+                        "value": "availability"
+                      }
+                    ]
+                  },
+                  {
+                    "uuid": "28e44e941b2847fa971c7be2a3432d67",
+                    "expression": "min(/DGX Spark GB10 by host collector/dgx.metric[filesystems.INODE.WARN,{#ID}],{$DGX.WINDOW})>{$DGX.INODE.WARN:\"{#ID}\"} and count(/DGX Spark GB10 by host collector/dgx.metric[filesystems.INODE.WARN,{#ID}],{$DGX.WINDOW})>=3 and fuzzytime(/DGX Spark GB10 by host collector/dgx.timestamp,{$DGX.STALE})=1",
+                    "name": "DGX: {#LABEL} sustained threshold violation",
+                    "priority": "WARNING",
+                    "tags": [
+                      {
+                        "tag": "scope",
+                        "value": "performance"
+                      }
+                    ],
+                    "recovery_mode": "RECOVERY_EXPRESSION",
+                    "recovery_expression": "last(/DGX Spark GB10 by host collector/dgx.metric[filesystems.INODE.WARN,{#ID}])<={$DGX.INODE.WARN.RECOVERY:\"{#ID}\"}"
+                  }
+                ]
+              }
+            ],
+            "graph_prototypes": [
+              {
+                "uuid": "fd8f6f6d400c414f9ab376a482aee3bd",
+                "name": "DGX filesystems.INODE.WARN: {#LABEL} [{#ID}]",
+                "graph_items": [
+                  {
+                    "color": "199C0D",
+                    "item": {
+                      "host": "DGX Spark GB10 by host collector",
+                      "key": "dgx.metric[filesystems.INODE.WARN,{#ID}]"
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "uuid": "188f392d64974667b2f797cd15c790c2",
+            "name": "DGX: discover disks.NONE",
+            "type": "DEPENDENT",
+            "key": "dgx.discovery[disks.NONE]",
+            "delay": "0",
+            "lifetime": "30d",
+            "master_item": {
+              "key": "dgx.telemetry"
+            },
+            "preprocessing": [
+              {
+                "type": "JSONPATH",
+                "parameters": [
+                  "$.discovery.disks"
+                ],
+                "error_handler": "DISCARD_VALUE"
+              },
+              {
+                "type": "JAVASCRIPT",
+                "parameters": [
+                  "return JSON.stringify(JSON.parse(value).filter(function(x) { return x[\"{#PROFILE}\"] === \"NONE\"; }));"
+                ]
+              },
+              {
+                "type": "DISCARD_UNCHANGED_HEARTBEAT",
+                "parameters": [
+                  "1h"
+                ]
+              }
+            ],
+            "item_prototypes": [
+              {
+                "uuid": "76a9feec916f4631b14dc0935cc8f149",
+                "name": "{#LABEL}",
+                "type": "DEPENDENT",
+                "key": "dgx.metric[disks.NONE,{#ID}]",
+                "delay": "0",
+                "history": "7d",
+                "value_type": "FLOAT",
+                "preprocessing": [
+                  {
+                    "type": "JSONPATH",
+                    "parameters": [
+                      "$.metrics['{#ID}']"
+                    ],
+                    "error_handler": "DISCARD_VALUE"
+                  }
+                ],
+                "master_item": {
+                  "key": "dgx.telemetry"
+                },
+                "tags": [
+                  {
+                    "tag": "component",
+                    "value": "disks"
+                  }
+                ],
+                "units": "{#UNIT}",
+                "description": "Host metric. Missing readings are discarded; N/A is never converted to zero.",
+                "trigger_prototypes": [
+                  {
+                    "uuid": "fb37aa851830494ba6167c94152edab0",
+                    "expression": "nodata(/DGX Spark GB10 by host collector/dgx.metric[disks.NONE,{#ID}],{$DGX.METRIC.STALE})=1 and fuzzytime(/DGX Spark GB10 by host collector/dgx.timestamp,{$DGX.STALE})=1",
+                    "name": "DGX: no readings for {#LABEL}",
+                    "priority": "WARNING",
+                    "tags": [
+                      {
+                        "tag": "scope",
+                        "value": "availability"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ],
+            "graph_prototypes": [
+              {
+                "uuid": "6cbec94f5bf54e0193b9a25ba14abb41",
+                "name": "DGX disks.NONE: {#LABEL} [{#ID}]",
+                "graph_items": [
+                  {
+                    "color": "199C0D",
+                    "item": {
+                      "host": "DGX Spark GB10 by host collector",
+                      "key": "dgx.metric[disks.NONE,{#ID}]"
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "uuid": "18b732e8538943c2ac3b1ee258304668",
+            "name": "DGX: discover network.NONE",
+            "type": "DEPENDENT",
+            "key": "dgx.discovery[network.NONE]",
+            "delay": "0",
+            "lifetime": "30d",
+            "master_item": {
+              "key": "dgx.telemetry"
+            },
+            "preprocessing": [
+              {
+                "type": "JSONPATH",
+                "parameters": [
+                  "$.discovery.network"
+                ],
+                "error_handler": "DISCARD_VALUE"
+              },
+              {
+                "type": "JAVASCRIPT",
+                "parameters": [
+                  "return JSON.stringify(JSON.parse(value).filter(function(x) { return x[\"{#PROFILE}\"] === \"NONE\"; }));"
+                ]
+              },
+              {
+                "type": "DISCARD_UNCHANGED_HEARTBEAT",
+                "parameters": [
+                  "1h"
+                ]
+              }
+            ],
+            "item_prototypes": [
+              {
+                "uuid": "d78cb61266b04472bab65b8203738a5f",
+                "name": "{#LABEL}",
+                "type": "DEPENDENT",
+                "key": "dgx.metric[network.NONE,{#ID}]",
+                "delay": "0",
+                "history": "7d",
+                "value_type": "FLOAT",
+                "preprocessing": [
+                  {
+                    "type": "JSONPATH",
+                    "parameters": [
+                      "$.metrics['{#ID}']"
+                    ],
+                    "error_handler": "DISCARD_VALUE"
+                  }
+                ],
+                "master_item": {
+                  "key": "dgx.telemetry"
+                },
+                "tags": [
+                  {
+                    "tag": "component",
+                    "value": "network"
+                  }
+                ],
+                "units": "{#UNIT}",
+                "description": "Host metric. Missing readings are discarded; N/A is never converted to zero.",
+                "trigger_prototypes": [
+                  {
+                    "uuid": "f17fe9339b144de3a22f761e0d87e87f",
+                    "expression": "nodata(/DGX Spark GB10 by host collector/dgx.metric[network.NONE,{#ID}],{$DGX.METRIC.STALE})=1 and fuzzytime(/DGX Spark GB10 by host collector/dgx.timestamp,{$DGX.STALE})=1",
+                    "name": "DGX: no readings for {#LABEL}",
+                    "priority": "WARNING",
+                    "tags": [
+                      {
+                        "tag": "scope",
+                        "value": "availability"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ],
+            "graph_prototypes": [
+              {
+                "uuid": "f27bafe07daf499ca5e1a2d2d4c5a433",
+                "name": "DGX network.NONE: {#LABEL} [{#ID}]",
+                "graph_items": [
+                  {
+                    "color": "199C0D",
+                    "item": {
+                      "host": "DGX Spark GB10 by host collector",
+                      "key": "dgx.metric[network.NONE,{#ID}]"
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "uuid": "a946a8c045564b269a80a4c79cac993a",
+            "name": "DGX: discover cache.NONE",
+            "type": "DEPENDENT",
+            "key": "dgx.discovery[cache.NONE]",
+            "delay": "0",
+            "lifetime": "30d",
+            "master_item": {
+              "key": "dgx.telemetry"
+            },
+            "preprocessing": [
+              {
+                "type": "JSONPATH",
+                "parameters": [
+                  "$.discovery.cache"
+                ],
+                "error_handler": "DISCARD_VALUE"
+              },
+              {
+                "type": "JAVASCRIPT",
+                "parameters": [
+                  "return JSON.stringify(JSON.parse(value).filter(function(x) { return x[\"{#PROFILE}\"] === \"NONE\"; }));"
+                ]
+              },
+              {
+                "type": "DISCARD_UNCHANGED_HEARTBEAT",
+                "parameters": [
+                  "1h"
+                ]
+              }
+            ],
+            "item_prototypes": [
+              {
+                "uuid": "0723989771e04826a1925163a6377ec5",
+                "name": "{#LABEL}",
+                "type": "DEPENDENT",
+                "key": "dgx.metric[cache.NONE,{#ID}]",
+                "delay": "0",
+                "history": "7d",
+                "value_type": "FLOAT",
+                "preprocessing": [
+                  {
+                    "type": "JSONPATH",
+                    "parameters": [
+                      "$.metrics['{#ID}']"
+                    ],
+                    "error_handler": "DISCARD_VALUE"
+                  }
+                ],
+                "master_item": {
+                  "key": "dgx.telemetry"
+                },
+                "tags": [
+                  {
+                    "tag": "component",
+                    "value": "cache"
+                  }
+                ],
+                "units": "{#UNIT}",
+                "description": "Host metric. Missing readings are discarded; N/A is never converted to zero.",
+                "trigger_prototypes": [
+                  {
+                    "uuid": "2759bab2b80b4e68bb93ed5669f09e71",
+                    "expression": "nodata(/DGX Spark GB10 by host collector/dgx.metric[cache.NONE,{#ID}],{$DGX.METRIC.STALE})=1 and fuzzytime(/DGX Spark GB10 by host collector/dgx.timestamp,{$DGX.STALE})=1",
+                    "name": "DGX: no readings for {#LABEL}",
+                    "priority": "WARNING",
+                    "tags": [
+                      {
+                        "tag": "scope",
+                        "value": "availability"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ],
+            "graph_prototypes": [
+              {
+                "uuid": "1eeb63110b164ca78d70b8353c5f1f2d",
+                "name": "DGX cache.NONE: {#LABEL} [{#ID}]",
+                "graph_items": [
+                  {
+                    "color": "199C0D",
+                    "item": {
+                      "host": "DGX Spark GB10 by host collector",
+                      "key": "dgx.metric[cache.NONE,{#ID}]"
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "uuid": "479e1b0be0974b60820c66e0c751fa76",
+            "name": "DGX: discover cache.AVAIL.MIN",
+            "type": "DEPENDENT",
+            "key": "dgx.discovery[cache.AVAIL.MIN]",
+            "delay": "0",
+            "lifetime": "30d",
+            "master_item": {
+              "key": "dgx.telemetry"
+            },
+            "preprocessing": [
+              {
+                "type": "JSONPATH",
+                "parameters": [
+                  "$.discovery.cache"
+                ],
+                "error_handler": "DISCARD_VALUE"
+              },
+              {
+                "type": "JAVASCRIPT",
+                "parameters": [
+                  "return JSON.stringify(JSON.parse(value).filter(function(x) { return x[\"{#PROFILE}\"] === \"AVAIL.MIN\"; }));"
+                ]
+              },
+              {
+                "type": "DISCARD_UNCHANGED_HEARTBEAT",
+                "parameters": [
+                  "1h"
+                ]
+              }
+            ],
+            "item_prototypes": [
+              {
+                "uuid": "053505ac752a4bd9a83efad849fd5bf4",
+                "name": "{#LABEL}",
+                "type": "DEPENDENT",
+                "key": "dgx.metric[cache.AVAIL.MIN,{#ID}]",
+                "delay": "0",
+                "history": "7d",
+                "value_type": "FLOAT",
+                "preprocessing": [
+                  {
+                    "type": "JSONPATH",
+                    "parameters": [
+                      "$.metrics['{#ID}']"
+                    ],
+                    "error_handler": "DISCARD_VALUE"
+                  }
+                ],
+                "master_item": {
+                  "key": "dgx.telemetry"
+                },
+                "tags": [
+                  {
+                    "tag": "component",
+                    "value": "cache"
+                  }
+                ],
+                "units": "{#UNIT}",
+                "description": "Host metric. Missing readings are discarded; N/A is never converted to zero.",
+                "trigger_prototypes": [
+                  {
+                    "uuid": "97e7f92a0ab249ee92d104e4d1e9a24c",
+                    "expression": "nodata(/DGX Spark GB10 by host collector/dgx.metric[cache.AVAIL.MIN,{#ID}],{$DGX.METRIC.STALE})=1 and fuzzytime(/DGX Spark GB10 by host collector/dgx.timestamp,{$DGX.STALE})=1",
+                    "name": "DGX: no readings for {#LABEL}",
+                    "priority": "WARNING",
+                    "tags": [
+                      {
+                        "tag": "scope",
+                        "value": "availability"
+                      }
+                    ]
+                  },
+                  {
+                    "uuid": "4b99581032b348a0a653ebfcace8943b",
+                    "expression": "max(/DGX Spark GB10 by host collector/dgx.metric[cache.AVAIL.MIN,{#ID}],{$DGX.WINDOW})<{$DGX.AVAIL.MIN:\"{#ID}\"} and count(/DGX Spark GB10 by host collector/dgx.metric[cache.AVAIL.MIN,{#ID}],{$DGX.WINDOW})>=3 and fuzzytime(/DGX Spark GB10 by host collector/dgx.timestamp,{$DGX.STALE})=1",
+                    "name": "DGX: {#LABEL} sustained threshold violation",
+                    "priority": "AVERAGE",
+                    "tags": [
+                      {
+                        "tag": "scope",
+                        "value": "performance"
+                      }
+                    ],
+                    "recovery_mode": "RECOVERY_EXPRESSION",
+                    "recovery_expression": "last(/DGX Spark GB10 by host collector/dgx.metric[cache.AVAIL.MIN,{#ID}])>={$DGX.AVAIL.MIN.RECOVERY:\"{#ID}\"}"
+                  }
+                ]
+              }
+            ],
+            "graph_prototypes": [
+              {
+                "uuid": "9749440be1144260afe62a6ce059057f",
+                "name": "DGX cache.AVAIL.MIN: {#LABEL} [{#ID}]",
+                "graph_items": [
+                  {
+                    "color": "199C0D",
+                    "item": {
+                      "host": "DGX Spark GB10 by host collector",
+                      "key": "dgx.metric[cache.AVAIL.MIN,{#ID}]"
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "uuid": "350fc5251e754303afff010496c43ec9",
+            "name": "DGX: discover cache.CACHE.WARN",
+            "type": "DEPENDENT",
+            "key": "dgx.discovery[cache.CACHE.WARN]",
+            "delay": "0",
+            "lifetime": "30d",
+            "master_item": {
+              "key": "dgx.telemetry"
+            },
+            "preprocessing": [
+              {
+                "type": "JSONPATH",
+                "parameters": [
+                  "$.discovery.cache"
+                ],
+                "error_handler": "DISCARD_VALUE"
+              },
+              {
+                "type": "JAVASCRIPT",
+                "parameters": [
+                  "return JSON.stringify(JSON.parse(value).filter(function(x) { return x[\"{#PROFILE}\"] === \"CACHE.WARN\"; }));"
+                ]
+              },
+              {
+                "type": "DISCARD_UNCHANGED_HEARTBEAT",
+                "parameters": [
+                  "1h"
+                ]
+              }
+            ],
+            "item_prototypes": [
+              {
+                "uuid": "f2f0dba2f97c40c5a6723c197cd29c62",
+                "name": "{#LABEL}",
+                "type": "DEPENDENT",
+                "key": "dgx.metric[cache.CACHE.WARN,{#ID}]",
+                "delay": "0",
+                "history": "7d",
+                "value_type": "FLOAT",
+                "preprocessing": [
+                  {
+                    "type": "JSONPATH",
+                    "parameters": [
+                      "$.metrics['{#ID}']"
+                    ],
+                    "error_handler": "DISCARD_VALUE"
+                  }
+                ],
+                "master_item": {
+                  "key": "dgx.telemetry"
+                },
+                "tags": [
+                  {
+                    "tag": "component",
+                    "value": "cache"
+                  }
+                ],
+                "units": "{#UNIT}",
+                "description": "Host metric. Missing readings are discarded; N/A is never converted to zero.",
+                "trigger_prototypes": [
+                  {
+                    "uuid": "eaa0068dad5e427ab49996f404ede368",
+                    "expression": "nodata(/DGX Spark GB10 by host collector/dgx.metric[cache.CACHE.WARN,{#ID}],{$DGX.METRIC.STALE})=1 and fuzzytime(/DGX Spark GB10 by host collector/dgx.timestamp,{$DGX.STALE})=1",
+                    "name": "DGX: no readings for {#LABEL}",
+                    "priority": "WARNING",
+                    "tags": [
+                      {
+                        "tag": "scope",
+                        "value": "availability"
+                      }
+                    ]
+                  },
+                  {
+                    "uuid": "1a207a0a68e14568a17275c0373fffac",
+                    "expression": "min(/DGX Spark GB10 by host collector/dgx.metric[cache.CACHE.WARN,{#ID}],{$DGX.WINDOW})>{$DGX.CACHE.WARN:\"{#ID}\"} and count(/DGX Spark GB10 by host collector/dgx.metric[cache.CACHE.WARN,{#ID}],{$DGX.WINDOW})>=3 and fuzzytime(/DGX Spark GB10 by host collector/dgx.timestamp,{$DGX.STALE})=1",
+                    "name": "DGX: {#LABEL} sustained threshold violation",
+                    "priority": "WARNING",
+                    "tags": [
+                      {
+                        "tag": "scope",
+                        "value": "performance"
+                      }
+                    ],
+                    "recovery_mode": "RECOVERY_EXPRESSION",
+                    "recovery_expression": "last(/DGX Spark GB10 by host collector/dgx.metric[cache.CACHE.WARN,{#ID}])<={$DGX.CACHE.WARN.RECOVERY:\"{#ID}\"}"
+                  }
+                ]
+              }
+            ],
+            "graph_prototypes": [
+              {
+                "uuid": "7e997d6de23449b3b15e1e9754240eec",
+                "name": "DGX cache.CACHE.WARN: {#LABEL} [{#ID}]",
+                "graph_items": [
+                  {
+                    "color": "199C0D",
+                    "item": {
+                      "host": "DGX Spark GB10 by host collector",
+                      "key": "dgx.metric[cache.CACHE.WARN,{#ID}]"
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "uuid": "a0f2126bad1846b2b864a23ba40217f1",
+            "name": "DGX: discover cache.CACHE.AGE.WARN",
+            "type": "DEPENDENT",
+            "key": "dgx.discovery[cache.CACHE.AGE.WARN]",
+            "delay": "0",
+            "lifetime": "30d",
+            "master_item": {
+              "key": "dgx.telemetry"
+            },
+            "preprocessing": [
+              {
+                "type": "JSONPATH",
+                "parameters": [
+                  "$.discovery.cache"
+                ],
+                "error_handler": "DISCARD_VALUE"
+              },
+              {
+                "type": "JAVASCRIPT",
+                "parameters": [
+                  "return JSON.stringify(JSON.parse(value).filter(function(x) { return x[\"{#PROFILE}\"] === \"CACHE.AGE.WARN\"; }));"
+                ]
+              },
+              {
+                "type": "DISCARD_UNCHANGED_HEARTBEAT",
+                "parameters": [
+                  "1h"
+                ]
+              }
+            ],
+            "item_prototypes": [
+              {
+                "uuid": "180c1b3aba584f5cbe941dfebeb7f214",
+                "name": "{#LABEL}",
+                "type": "DEPENDENT",
+                "key": "dgx.metric[cache.CACHE.AGE.WARN,{#ID}]",
+                "delay": "0",
+                "history": "7d",
+                "value_type": "FLOAT",
+                "preprocessing": [
+                  {
+                    "type": "JSONPATH",
+                    "parameters": [
+                      "$.metrics['{#ID}']"
+                    ],
+                    "error_handler": "DISCARD_VALUE"
+                  }
+                ],
+                "master_item": {
+                  "key": "dgx.telemetry"
+                },
+                "tags": [
+                  {
+                    "tag": "component",
+                    "value": "cache"
+                  }
+                ],
+                "units": "{#UNIT}",
+                "description": "Host metric. Missing readings are discarded; N/A is never converted to zero.",
+                "trigger_prototypes": [
+                  {
+                    "uuid": "d570dca616cc46ee85f06aef009d7ac5",
+                    "expression": "nodata(/DGX Spark GB10 by host collector/dgx.metric[cache.CACHE.AGE.WARN,{#ID}],{$DGX.METRIC.STALE})=1 and fuzzytime(/DGX Spark GB10 by host collector/dgx.timestamp,{$DGX.STALE})=1",
+                    "name": "DGX: no readings for {#LABEL}",
+                    "priority": "WARNING",
+                    "tags": [
+                      {
+                        "tag": "scope",
+                        "value": "availability"
+                      }
+                    ]
+                  },
+                  {
+                    "uuid": "81ab8b260da84e908c286a6cdd08c25c",
+                    "expression": "min(/DGX Spark GB10 by host collector/dgx.metric[cache.CACHE.AGE.WARN,{#ID}],{$DGX.WINDOW})>{$DGX.CACHE.AGE.WARN:\"{#ID}\"} and count(/DGX Spark GB10 by host collector/dgx.metric[cache.CACHE.AGE.WARN,{#ID}],{$DGX.WINDOW})>=3 and fuzzytime(/DGX Spark GB10 by host collector/dgx.timestamp,{$DGX.STALE})=1",
+                    "name": "DGX: {#LABEL} sustained threshold violation",
+                    "priority": "WARNING",
+                    "tags": [
+                      {
+                        "tag": "scope",
+                        "value": "performance"
+                      }
+                    ],
+                    "recovery_mode": "RECOVERY_EXPRESSION",
+                    "recovery_expression": "last(/DGX Spark GB10 by host collector/dgx.metric[cache.CACHE.AGE.WARN,{#ID}])<={$DGX.CACHE.AGE.WARN.RECOVERY:\"{#ID}\"}"
+                  }
+                ]
+              }
+            ],
+            "graph_prototypes": [
+              {
+                "uuid": "b7550bb67acd444387d749babf2030cd",
+                "name": "DGX cache.CACHE.AGE.WARN: {#LABEL} [{#ID}]",
+                "graph_items": [
+                  {
+                    "color": "199C0D",
+                    "item": {
+                      "host": "DGX Spark GB10 by host collector",
+                      "key": "dgx.metric[cache.CACHE.AGE.WARN,{#ID}]"
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "uuid": "677a15e3fb64411faec5038bf73d49f8",
+            "name": "DGX: discover services.NONE",
+            "type": "DEPENDENT",
+            "key": "dgx.discovery[services.NONE]",
+            "delay": "0",
+            "lifetime": "30d",
+            "master_item": {
+              "key": "dgx.telemetry"
+            },
+            "preprocessing": [
+              {
+                "type": "JSONPATH",
+                "parameters": [
+                  "$.discovery.services"
+                ],
+                "error_handler": "DISCARD_VALUE"
+              },
+              {
+                "type": "JAVASCRIPT",
+                "parameters": [
+                  "return JSON.stringify(JSON.parse(value).filter(function(x) { return x[\"{#PROFILE}\"] === \"NONE\"; }));"
+                ]
+              },
+              {
+                "type": "DISCARD_UNCHANGED_HEARTBEAT",
+                "parameters": [
+                  "1h"
+                ]
+              }
+            ],
+            "item_prototypes": [
+              {
+                "uuid": "1d46c2be34a6491da0b09cd38fe4f521",
+                "name": "{#LABEL}",
+                "type": "DEPENDENT",
+                "key": "dgx.metric[services.NONE,{#ID}]",
+                "delay": "0",
+                "history": "7d",
+                "value_type": "FLOAT",
+                "preprocessing": [
+                  {
+                    "type": "JSONPATH",
+                    "parameters": [
+                      "$.metrics['{#ID}']"
+                    ],
+                    "error_handler": "DISCARD_VALUE"
+                  }
+                ],
+                "master_item": {
+                  "key": "dgx.telemetry"
+                },
+                "tags": [
+                  {
+                    "tag": "component",
+                    "value": "services"
+                  }
+                ],
+                "units": "{#UNIT}",
+                "description": "Host metric. Missing readings are discarded; N/A is never converted to zero.",
+                "trigger_prototypes": [
+                  {
+                    "uuid": "2d12dbf4929a4895ac28682cb1bb6a12",
+                    "expression": "nodata(/DGX Spark GB10 by host collector/dgx.metric[services.NONE,{#ID}],{$DGX.METRIC.STALE})=1 and fuzzytime(/DGX Spark GB10 by host collector/dgx.timestamp,{$DGX.STALE})=1",
+                    "name": "DGX: no readings for {#LABEL}",
+                    "priority": "WARNING",
+                    "tags": [
+                      {
+                        "tag": "scope",
+                        "value": "availability"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ],
+            "graph_prototypes": [
+              {
+                "uuid": "cb65456c04f745c7a492f8b1d8fcab5b",
+                "name": "DGX services.NONE: {#LABEL} [{#ID}]",
+                "graph_items": [
+                  {
+                    "color": "199C0D",
+                    "item": {
+                      "host": "DGX Spark GB10 by host collector",
+                      "key": "dgx.metric[services.NONE,{#ID}]"
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "uuid": "e0da51552e4946498c0ef0d554e2fdb1",
+            "name": "DGX: discover services.AVAIL.MIN",
+            "type": "DEPENDENT",
+            "key": "dgx.discovery[services.AVAIL.MIN]",
+            "delay": "0",
+            "lifetime": "30d",
+            "master_item": {
+              "key": "dgx.telemetry"
+            },
+            "preprocessing": [
+              {
+                "type": "JSONPATH",
+                "parameters": [
+                  "$.discovery.services"
+                ],
+                "error_handler": "DISCARD_VALUE"
+              },
+              {
+                "type": "JAVASCRIPT",
+                "parameters": [
+                  "return JSON.stringify(JSON.parse(value).filter(function(x) { return x[\"{#PROFILE}\"] === \"AVAIL.MIN\"; }));"
+                ]
+              },
+              {
+                "type": "DISCARD_UNCHANGED_HEARTBEAT",
+                "parameters": [
+                  "1h"
+                ]
+              }
+            ],
+            "item_prototypes": [
+              {
+                "uuid": "edaadedba1564de894791f8d1e05adf5",
+                "name": "{#LABEL}",
+                "type": "DEPENDENT",
+                "key": "dgx.metric[services.AVAIL.MIN,{#ID}]",
+                "delay": "0",
+                "history": "7d",
+                "value_type": "FLOAT",
+                "preprocessing": [
+                  {
+                    "type": "JSONPATH",
+                    "parameters": [
+                      "$.metrics['{#ID}']"
+                    ],
+                    "error_handler": "DISCARD_VALUE"
+                  }
+                ],
+                "master_item": {
+                  "key": "dgx.telemetry"
+                },
+                "tags": [
+                  {
+                    "tag": "component",
+                    "value": "services"
+                  }
+                ],
+                "units": "{#UNIT}",
+                "description": "Host metric. Missing readings are discarded; N/A is never converted to zero.",
+                "trigger_prototypes": [
+                  {
+                    "uuid": "dc06b5c20ea6462f91d2c37c98be4b5b",
+                    "expression": "nodata(/DGX Spark GB10 by host collector/dgx.metric[services.AVAIL.MIN,{#ID}],{$DGX.METRIC.STALE})=1 and fuzzytime(/DGX Spark GB10 by host collector/dgx.timestamp,{$DGX.STALE})=1",
+                    "name": "DGX: no readings for {#LABEL}",
+                    "priority": "WARNING",
+                    "tags": [
+                      {
+                        "tag": "scope",
+                        "value": "availability"
+                      }
+                    ]
+                  },
+                  {
+                    "uuid": "33346efc4a3a47319d438e0b52caada1",
+                    "expression": "max(/DGX Spark GB10 by host collector/dgx.metric[services.AVAIL.MIN,{#ID}],{$DGX.WINDOW})<{$DGX.AVAIL.MIN:\"{#ID}\"} and count(/DGX Spark GB10 by host collector/dgx.metric[services.AVAIL.MIN,{#ID}],{$DGX.WINDOW})>=3 and fuzzytime(/DGX Spark GB10 by host collector/dgx.timestamp,{$DGX.STALE})=1",
+                    "name": "DGX: {#LABEL} sustained threshold violation",
+                    "priority": "AVERAGE",
+                    "tags": [
+                      {
+                        "tag": "scope",
+                        "value": "performance"
+                      }
+                    ],
+                    "recovery_mode": "RECOVERY_EXPRESSION",
+                    "recovery_expression": "last(/DGX Spark GB10 by host collector/dgx.metric[services.AVAIL.MIN,{#ID}])>={$DGX.AVAIL.MIN.RECOVERY:\"{#ID}\"}"
+                  }
+                ],
+                "valuemap": {
+                  "name": "Service availability"
+                }
+              }
+            ],
+            "graph_prototypes": [
+              {
+                "uuid": "99df170887b543ee9e2fbe8286ca1a95",
+                "name": "DGX services.AVAIL.MIN: {#LABEL} [{#ID}]",
+                "graph_items": [
+                  {
+                    "color": "199C0D",
+                    "item": {
+                      "host": "DGX Spark GB10 by host collector",
+                      "key": "dgx.metric[services.AVAIL.MIN,{#ID}]"
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "uuid": "cadbe842557248a3b3fa18f3988aba19",
+            "name": "DGX: discover services.SERVICE.LATENCY.WARN",
+            "type": "DEPENDENT",
+            "key": "dgx.discovery[services.SERVICE.LATENCY.WARN]",
+            "delay": "0",
+            "lifetime": "30d",
+            "master_item": {
+              "key": "dgx.telemetry"
+            },
+            "preprocessing": [
+              {
+                "type": "JSONPATH",
+                "parameters": [
+                  "$.discovery.services"
+                ],
+                "error_handler": "DISCARD_VALUE"
+              },
+              {
+                "type": "JAVASCRIPT",
+                "parameters": [
+                  "return JSON.stringify(JSON.parse(value).filter(function(x) { return x[\"{#PROFILE}\"] === \"SERVICE.LATENCY.WARN\"; }));"
+                ]
+              },
+              {
+                "type": "DISCARD_UNCHANGED_HEARTBEAT",
+                "parameters": [
+                  "1h"
+                ]
+              }
+            ],
+            "item_prototypes": [
+              {
+                "uuid": "c1834941fada478e928ef5681bafa01b",
+                "name": "{#LABEL}",
+                "type": "DEPENDENT",
+                "key": "dgx.metric[services.SERVICE.LATENCY.WARN,{#ID}]",
+                "delay": "0",
+                "history": "7d",
+                "value_type": "FLOAT",
+                "preprocessing": [
+                  {
+                    "type": "JSONPATH",
+                    "parameters": [
+                      "$.metrics['{#ID}']"
+                    ],
+                    "error_handler": "DISCARD_VALUE"
+                  }
+                ],
+                "master_item": {
+                  "key": "dgx.telemetry"
+                },
+                "tags": [
+                  {
+                    "tag": "component",
+                    "value": "services"
+                  }
+                ],
+                "units": "{#UNIT}",
+                "description": "Host metric. Missing readings are discarded; N/A is never converted to zero.",
+                "trigger_prototypes": [
+                  {
+                    "uuid": "e773e88e81e5499ca4a2d4bc00728c3f",
+                    "expression": "nodata(/DGX Spark GB10 by host collector/dgx.metric[services.SERVICE.LATENCY.WARN,{#ID}],{$DGX.METRIC.STALE})=1 and fuzzytime(/DGX Spark GB10 by host collector/dgx.timestamp,{$DGX.STALE})=1",
+                    "name": "DGX: no readings for {#LABEL}",
+                    "priority": "WARNING",
+                    "tags": [
+                      {
+                        "tag": "scope",
+                        "value": "availability"
+                      }
+                    ]
+                  },
+                  {
+                    "uuid": "c7edefceadff4699bb3f8396e537dc54",
+                    "expression": "min(/DGX Spark GB10 by host collector/dgx.metric[services.SERVICE.LATENCY.WARN,{#ID}],{$DGX.WINDOW})>{$DGX.SERVICE.LATENCY.WARN:\"{#ID}\"} and count(/DGX Spark GB10 by host collector/dgx.metric[services.SERVICE.LATENCY.WARN,{#ID}],{$DGX.WINDOW})>=3 and fuzzytime(/DGX Spark GB10 by host collector/dgx.timestamp,{$DGX.STALE})=1",
+                    "name": "DGX: {#LABEL} sustained threshold violation",
+                    "priority": "WARNING",
+                    "tags": [
+                      {
+                        "tag": "scope",
+                        "value": "performance"
+                      }
+                    ],
+                    "recovery_mode": "RECOVERY_EXPRESSION",
+                    "recovery_expression": "last(/DGX Spark GB10 by host collector/dgx.metric[services.SERVICE.LATENCY.WARN,{#ID}])<={$DGX.SERVICE.LATENCY.WARN.RECOVERY:\"{#ID}\"}"
+                  }
+                ]
+              }
+            ],
+            "graph_prototypes": [
+              {
+                "uuid": "6ffa897963ba4bc9ba32c600a0b05734",
+                "name": "DGX services.SERVICE.LATENCY.WARN: {#LABEL} [{#ID}]",
+                "graph_items": [
+                  {
+                    "color": "199C0D",
+                    "item": {
+                      "host": "DGX Spark GB10 by host collector",
+                      "key": "dgx.metric[services.SERVICE.LATENCY.WARN,{#ID}]"
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "uuid": "3eb9c3098e7942c6a7715c38fb3267f3",
+            "name": "DGX: discover processes.NONE",
+            "type": "DEPENDENT",
+            "key": "dgx.discovery[processes.NONE]",
+            "delay": "0",
+            "lifetime": "30d",
+            "master_item": {
+              "key": "dgx.telemetry"
+            },
+            "preprocessing": [
+              {
+                "type": "JSONPATH",
+                "parameters": [
+                  "$.discovery.processes"
+                ],
+                "error_handler": "DISCARD_VALUE"
+              },
+              {
+                "type": "JAVASCRIPT",
+                "parameters": [
+                  "return JSON.stringify(JSON.parse(value).filter(function(x) { return x[\"{#PROFILE}\"] === \"NONE\"; }));"
+                ]
+              },
+              {
+                "type": "DISCARD_UNCHANGED_HEARTBEAT",
+                "parameters": [
+                  "1h"
+                ]
+              }
+            ],
+            "item_prototypes": [
+              {
+                "uuid": "c3cacae2bacf4f0792fa9294934e0299",
+                "name": "{#LABEL}",
+                "type": "DEPENDENT",
+                "key": "dgx.metric[processes.NONE,{#ID}]",
+                "delay": "0",
+                "history": "7d",
+                "value_type": "FLOAT",
+                "preprocessing": [
+                  {
+                    "type": "JSONPATH",
+                    "parameters": [
+                      "$.metrics['{#ID}']"
+                    ],
+                    "error_handler": "DISCARD_VALUE"
+                  }
+                ],
+                "master_item": {
+                  "key": "dgx.telemetry"
+                },
+                "tags": [
+                  {
+                    "tag": "component",
+                    "value": "processes"
+                  }
+                ],
+                "units": "{#UNIT}",
+                "description": "Host metric. Missing readings are discarded; N/A is never converted to zero.",
+                "trigger_prototypes": [
+                  {
+                    "uuid": "eade1e471bca4fd69928185496189f26",
+                    "expression": "nodata(/DGX Spark GB10 by host collector/dgx.metric[processes.NONE,{#ID}],{$DGX.METRIC.STALE})=1 and fuzzytime(/DGX Spark GB10 by host collector/dgx.timestamp,{$DGX.STALE})=1",
+                    "name": "DGX: no readings for {#LABEL}",
+                    "priority": "WARNING",
+                    "tags": [
+                      {
+                        "tag": "scope",
+                        "value": "availability"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ],
+            "graph_prototypes": [
+              {
+                "uuid": "5ad0c4425aa94970b7a8986f928158ec",
+                "name": "DGX processes.NONE: {#LABEL} [{#ID}]",
+                "graph_items": [
+                  {
+                    "color": "199C0D",
+                    "item": {
+                      "host": "DGX Spark GB10 by host collector",
+                      "key": "dgx.metric[processes.NONE,{#ID}]"
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "uuid": "d3d9229166c44a14af235ed12c8e9e14",
+            "name": "DGX: discover processes.PROCESS.RSS.WARN",
+            "type": "DEPENDENT",
+            "key": "dgx.discovery[processes.PROCESS.RSS.WARN]",
+            "delay": "0",
+            "lifetime": "30d",
+            "master_item": {
+              "key": "dgx.telemetry"
+            },
+            "preprocessing": [
+              {
+                "type": "JSONPATH",
+                "parameters": [
+                  "$.discovery.processes"
+                ],
+                "error_handler": "DISCARD_VALUE"
+              },
+              {
+                "type": "JAVASCRIPT",
+                "parameters": [
+                  "return JSON.stringify(JSON.parse(value).filter(function(x) { return x[\"{#PROFILE}\"] === \"PROCESS.RSS.WARN\"; }));"
+                ]
+              },
+              {
+                "type": "DISCARD_UNCHANGED_HEARTBEAT",
+                "parameters": [
+                  "1h"
+                ]
+              }
+            ],
+            "item_prototypes": [
+              {
+                "uuid": "3ef7c4fcda6b43e8a8d8c7f0b8489de4",
+                "name": "{#LABEL}",
+                "type": "DEPENDENT",
+                "key": "dgx.metric[processes.PROCESS.RSS.WARN,{#ID}]",
+                "delay": "0",
+                "history": "7d",
+                "value_type": "FLOAT",
+                "preprocessing": [
+                  {
+                    "type": "JSONPATH",
+                    "parameters": [
+                      "$.metrics['{#ID}']"
+                    ],
+                    "error_handler": "DISCARD_VALUE"
+                  }
+                ],
+                "master_item": {
+                  "key": "dgx.telemetry"
+                },
+                "tags": [
+                  {
+                    "tag": "component",
+                    "value": "processes"
+                  }
+                ],
+                "units": "{#UNIT}",
+                "description": "Host metric. Missing readings are discarded; N/A is never converted to zero.",
+                "trigger_prototypes": [
+                  {
+                    "uuid": "15e47fb370ee462186acb0f6f6045a3e",
+                    "expression": "nodata(/DGX Spark GB10 by host collector/dgx.metric[processes.PROCESS.RSS.WARN,{#ID}],{$DGX.METRIC.STALE})=1 and fuzzytime(/DGX Spark GB10 by host collector/dgx.timestamp,{$DGX.STALE})=1",
+                    "name": "DGX: no readings for {#LABEL}",
+                    "priority": "WARNING",
+                    "tags": [
+                      {
+                        "tag": "scope",
+                        "value": "availability"
+                      }
+                    ]
+                  },
+                  {
+                    "uuid": "c9284ae8390f48bf9a083034733960e3",
+                    "expression": "min(/DGX Spark GB10 by host collector/dgx.metric[processes.PROCESS.RSS.WARN,{#ID}],{$DGX.WINDOW})>{$DGX.PROCESS.RSS.WARN:\"{#ID}\"} and count(/DGX Spark GB10 by host collector/dgx.metric[processes.PROCESS.RSS.WARN,{#ID}],{$DGX.WINDOW})>=3 and fuzzytime(/DGX Spark GB10 by host collector/dgx.timestamp,{$DGX.STALE})=1",
+                    "name": "DGX: {#LABEL} sustained threshold violation",
+                    "priority": "WARNING",
+                    "tags": [
+                      {
+                        "tag": "scope",
+                        "value": "performance"
+                      }
+                    ],
+                    "recovery_mode": "RECOVERY_EXPRESSION",
+                    "recovery_expression": "last(/DGX Spark GB10 by host collector/dgx.metric[processes.PROCESS.RSS.WARN,{#ID}])<={$DGX.PROCESS.RSS.WARN.RECOVERY:\"{#ID}\"}"
+                  }
+                ]
+              }
+            ],
+            "graph_prototypes": [
+              {
+                "uuid": "ad6c5a838b0a464ba22f0a16f3a92b91",
+                "name": "DGX processes.PROCESS.RSS.WARN: {#LABEL} [{#ID}]",
+                "graph_items": [
+                  {
+                    "color": "199C0D",
+                    "item": {
+                      "host": "DGX Spark GB10 by host collector",
+                      "key": "dgx.metric[processes.PROCESS.RSS.WARN,{#ID}]"
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "uuid": "af177d78872a4d5a998a4a1b5ca55868",
+            "name": "DGX: discover processes.PROCESS.CPU.WARN",
+            "type": "DEPENDENT",
+            "key": "dgx.discovery[processes.PROCESS.CPU.WARN]",
+            "delay": "0",
+            "lifetime": "30d",
+            "master_item": {
+              "key": "dgx.telemetry"
+            },
+            "preprocessing": [
+              {
+                "type": "JSONPATH",
+                "parameters": [
+                  "$.discovery.processes"
+                ],
+                "error_handler": "DISCARD_VALUE"
+              },
+              {
+                "type": "JAVASCRIPT",
+                "parameters": [
+                  "return JSON.stringify(JSON.parse(value).filter(function(x) { return x[\"{#PROFILE}\"] === \"PROCESS.CPU.WARN\"; }));"
+                ]
+              },
+              {
+                "type": "DISCARD_UNCHANGED_HEARTBEAT",
+                "parameters": [
+                  "1h"
+                ]
+              }
+            ],
+            "item_prototypes": [
+              {
+                "uuid": "1d7b65121f0e4800809581291e0ab3b8",
+                "name": "{#LABEL}",
+                "type": "DEPENDENT",
+                "key": "dgx.metric[processes.PROCESS.CPU.WARN,{#ID}]",
+                "delay": "0",
+                "history": "7d",
+                "value_type": "FLOAT",
+                "preprocessing": [
+                  {
+                    "type": "JSONPATH",
+                    "parameters": [
+                      "$.metrics['{#ID}']"
+                    ],
+                    "error_handler": "DISCARD_VALUE"
+                  }
+                ],
+                "master_item": {
+                  "key": "dgx.telemetry"
+                },
+                "tags": [
+                  {
+                    "tag": "component",
+                    "value": "processes"
+                  }
+                ],
+                "units": "{#UNIT}",
+                "description": "Host metric. Missing readings are discarded; N/A is never converted to zero.",
+                "trigger_prototypes": [
+                  {
+                    "uuid": "41986e69b58d47b8aa3a9bc73079edd6",
+                    "expression": "nodata(/DGX Spark GB10 by host collector/dgx.metric[processes.PROCESS.CPU.WARN,{#ID}],{$DGX.METRIC.STALE})=1 and fuzzytime(/DGX Spark GB10 by host collector/dgx.timestamp,{$DGX.STALE})=1",
+                    "name": "DGX: no readings for {#LABEL}",
+                    "priority": "WARNING",
+                    "tags": [
+                      {
+                        "tag": "scope",
+                        "value": "availability"
+                      }
+                    ]
+                  },
+                  {
+                    "uuid": "967d8b54041240f5b6415a387c5a0360",
+                    "expression": "min(/DGX Spark GB10 by host collector/dgx.metric[processes.PROCESS.CPU.WARN,{#ID}],{$DGX.WINDOW})>{$DGX.PROCESS.CPU.WARN:\"{#ID}\"} and count(/DGX Spark GB10 by host collector/dgx.metric[processes.PROCESS.CPU.WARN,{#ID}],{$DGX.WINDOW})>=3 and fuzzytime(/DGX Spark GB10 by host collector/dgx.timestamp,{$DGX.STALE})=1",
+                    "name": "DGX: {#LABEL} sustained threshold violation",
+                    "priority": "WARNING",
+                    "tags": [
+                      {
+                        "tag": "scope",
+                        "value": "performance"
+                      }
+                    ],
+                    "recovery_mode": "RECOVERY_EXPRESSION",
+                    "recovery_expression": "last(/DGX Spark GB10 by host collector/dgx.metric[processes.PROCESS.CPU.WARN,{#ID}])<={$DGX.PROCESS.CPU.WARN.RECOVERY:\"{#ID}\"}"
+                  }
+                ]
+              }
+            ],
+            "graph_prototypes": [
+              {
+                "uuid": "e86b0a5bd5a34d97bad1b5f5eea1a2db",
+                "name": "DGX processes.PROCESS.CPU.WARN: {#LABEL} [{#ID}]",
+                "graph_items": [
+                  {
+                    "color": "199C0D",
+                    "item": {
+                      "host": "DGX Spark GB10 by host collector",
+                      "key": "dgx.metric[processes.PROCESS.CPU.WARN,{#ID}]"
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "macros": [
+          {
+            "macro": "{$DGX.INTERVAL}",
+            "value": "1m"
+          },
+          {
+            "macro": "{$DGX.WINDOW}",
+            "value": "5m"
+          },
+          {
+            "macro": "{$DGX.STALE}",
+            "value": "5m"
+          },
+          {
+            "macro": "{$DGX.METRIC.STALE}",
+            "value": "15m"
+          },
+          {
+            "macro": "{$DGX.MEM.WARN}",
+            "value": "90",
+            "description": "Configurable provisional threshold; not a manufacturer specification."
+          },
+          {
+            "macro": "{$DGX.MEM.WARN.RECOVERY}",
+            "value": "85",
+            "description": "Configurable provisional threshold; not a manufacturer specification."
+          },
+          {
+            "macro": "{$DGX.SWAP.WARN}",
+            "value": "80",
+            "description": "Configurable provisional threshold; not a manufacturer specification."
+          },
+          {
+            "macro": "{$DGX.SWAP.WARN.RECOVERY}",
+            "value": "70",
+            "description": "Configurable provisional threshold; not a manufacturer specification."
+          },
+          {
+            "macro": "{$DGX.CPU.WARN}",
+            "value": "95",
+            "description": "Configurable provisional threshold; not a manufacturer specification."
+          },
+          {
+            "macro": "{$DGX.CPU.WARN.RECOVERY}",
+            "value": "85",
+            "description": "Configurable provisional threshold; not a manufacturer specification."
+          },
+          {
+            "macro": "{$DGX.GPU.TEMP.WARN}",
+            "value": "85",
+            "description": "Configurable provisional threshold; not a manufacturer specification."
+          },
+          {
+            "macro": "{$DGX.GPU.TEMP.WARN.RECOVERY}",
+            "value": "80",
+            "description": "Configurable provisional threshold; not a manufacturer specification."
+          },
+          {
+            "macro": "{$DGX.SENSOR.TEMP.WARN}",
+            "value": "85",
+            "description": "Configurable provisional threshold; not a manufacturer specification."
+          },
+          {
+            "macro": "{$DGX.SENSOR.TEMP.WARN.RECOVERY}",
+            "value": "80",
+            "description": "Configurable provisional threshold; not a manufacturer specification."
+          },
+          {
+            "macro": "{$DGX.POWER.WARN}",
+            "value": "150",
+            "description": "Configurable provisional threshold; not a manufacturer specification."
+          },
+          {
+            "macro": "{$DGX.POWER.WARN.RECOVERY}",
+            "value": "140",
+            "description": "Configurable provisional threshold; not a manufacturer specification."
+          },
+          {
+            "macro": "{$DGX.FS.WARN}",
+            "value": "85",
+            "description": "Configurable provisional threshold; not a manufacturer specification."
+          },
+          {
+            "macro": "{$DGX.FS.WARN.RECOVERY}",
+            "value": "80",
+            "description": "Configurable provisional threshold; not a manufacturer specification."
+          },
+          {
+            "macro": "{$DGX.INODE.WARN}",
+            "value": "90",
+            "description": "Configurable provisional threshold; not a manufacturer specification."
+          },
+          {
+            "macro": "{$DGX.INODE.WARN.RECOVERY}",
+            "value": "85",
+            "description": "Configurable provisional threshold; not a manufacturer specification."
+          },
+          {
+            "macro": "{$DGX.CACHE.WARN}",
+            "value": "50",
+            "description": "Configurable provisional threshold; not a manufacturer specification."
+          },
+          {
+            "macro": "{$DGX.CACHE.WARN.RECOVERY}",
+            "value": "45",
+            "description": "Configurable provisional threshold; not a manufacturer specification."
+          },
+          {
+            "macro": "{$DGX.CACHE.AGE.WARN}",
+            "value": "5400",
+            "description": "Configurable provisional threshold; not a manufacturer specification."
+          },
+          {
+            "macro": "{$DGX.CACHE.AGE.WARN.RECOVERY}",
+            "value": "3600",
+            "description": "Configurable provisional threshold; not a manufacturer specification."
+          },
+          {
+            "macro": "{$DGX.AVAIL.MIN}",
+            "value": "0.5",
+            "description": "Configurable provisional threshold; not a manufacturer specification."
+          },
+          {
+            "macro": "{$DGX.AVAIL.MIN.RECOVERY}",
+            "value": "0.5",
+            "description": "Configurable provisional threshold; not a manufacturer specification."
+          },
+          {
+            "macro": "{$DGX.SERVICE.LATENCY.WARN}",
+            "value": "0.8",
+            "description": "Configurable provisional threshold; not a manufacturer specification."
+          },
+          {
+            "macro": "{$DGX.SERVICE.LATENCY.WARN.RECOVERY}",
+            "value": "0.5",
+            "description": "Configurable provisional threshold; not a manufacturer specification."
+          },
+          {
+            "macro": "{$DGX.PROCESS.RSS.WARN}",
+            "value": "90",
+            "description": "Configurable provisional threshold; not a manufacturer specification."
+          },
+          {
+            "macro": "{$DGX.PROCESS.RSS.WARN.RECOVERY}",
+            "value": "80",
+            "description": "Configurable provisional threshold; not a manufacturer specification."
+          },
+          {
+            "macro": "{$DGX.PROCESS.CPU.WARN}",
+            "value": "101",
+            "description": "Configurable provisional threshold; not a manufacturer specification."
+          },
+          {
+            "macro": "{$DGX.PROCESS.CPU.WARN.RECOVERY}",
+            "value": "95",
+            "description": "Configurable provisional threshold; not a manufacturer specification."
+          }
+        ],
+        "dashboards": [
+          {
+            "uuid": "9282851fb56647a18b4cac16614ccc4c",
+            "name": "DGX Spark - host overview",
+            "pages": [
+              {
+                "name": "Overview",
+                "widgets": [
+                  {
+                    "type": "item",
+                    "name": "Host uptime",
+                    "x": "0",
+                    "y": "0",
+                    "width": "18",
+                    "height": "3",
+                    "fields": [
+                      {
+                        "type": "ITEM",
+                        "name": "itemid.0",
+                        "value": {
+                          "host": "DGX Spark GB10 by host collector",
+                          "key": "dgx.summary[uptime]"
+                        }
+                      },
+                      {
+                        "type": "INTEGER",
+                        "name": "show.0",
+                        "value": "1"
+                      },
+                      {
+                        "type": "INTEGER",
+                        "name": "show.1",
+                        "value": "2"
+                      },
+                      {
+                        "type": "STRING",
+                        "name": "description",
+                        "value": "Host uptime"
+                      },
+                      {
+                        "type": "INTEGER",
+                        "name": "decimal_places",
+                        "value": "0"
+                      },
+                      {
+                        "type": "STRING",
+                        "name": "reference",
+                        "value": "UPTIM"
+                      }
+                    ]
+                  },
+                  {
+                    "type": "item",
+                    "name": "Detected engine endpoints",
+                    "x": "18",
+                    "y": "0",
+                    "width": "18",
+                    "height": "3",
+                    "fields": [
+                      {
+                        "type": "ITEM",
+                        "name": "itemid.0",
+                        "value": {
+                          "host": "DGX Spark GB10 by host collector",
+                          "key": "dgx.summary[engines_detected]"
+                        }
+                      },
+                      {
+                        "type": "INTEGER",
+                        "name": "show.0",
+                        "value": "1"
+                      },
+                      {
+                        "type": "INTEGER",
+                        "name": "show.1",
+                        "value": "2"
+                      },
+                      {
+                        "type": "STRING",
+                        "name": "description",
+                        "value": "Detected engine endpoints"
+                      },
+                      {
+                        "type": "INTEGER",
+                        "name": "decimal_places",
+                        "value": "0"
+                      },
+                      {
+                        "type": "STRING",
+                        "name": "reference",
+                        "value": "ENGCT"
+                      }
+                    ]
+                  },
+                  {
+                    "type": "item",
+                    "name": "CPU load - 15 minutes",
+                    "x": "36",
+                    "y": "0",
+                    "width": "18",
+                    "height": "3",
+                    "fields": [
+                      {
+                        "type": "ITEM",
+                        "name": "itemid.0",
+                        "value": {
+                          "host": "DGX Spark GB10 by host collector",
+                          "key": "dgx.summary[load15]"
+                        }
+                      },
+                      {
+                        "type": "INTEGER",
+                        "name": "show.0",
+                        "value": "1"
+                      },
+                      {
+                        "type": "INTEGER",
+                        "name": "show.1",
+                        "value": "2"
+                      },
+                      {
+                        "type": "STRING",
+                        "name": "description",
+                        "value": "CPU load - 15 minutes"
+                      },
+                      {
+                        "type": "INTEGER",
+                        "name": "decimal_places",
+                        "value": "2"
+                      },
+                      {
+                        "type": "STRING",
+                        "name": "reference",
+                        "value": "LOADF"
+                      }
+                    ]
+                  },
+                  {
+                    "type": "item",
+                    "name": "RAM page cache",
+                    "x": "54",
+                    "y": "0",
+                    "width": "18",
+                    "height": "3",
+                    "fields": [
+                      {
+                        "type": "ITEM",
+                        "name": "itemid.0",
+                        "value": {
+                          "host": "DGX Spark GB10 by host collector",
+                          "key": "dgx.summary[page_cache]"
+                        }
+                      },
+                      {
+                        "type": "INTEGER",
+                        "name": "show.0",
+                        "value": "1"
+                      },
+                      {
+                        "type": "INTEGER",
+                        "name": "show.1",
+                        "value": "2"
+                      },
+                      {
+                        "type": "STRING",
+                        "name": "description",
+                        "value": "RAM page cache"
+                      },
+                      {
+                        "type": "INTEGER",
+                        "name": "decimal_places",
+                        "value": "0"
+                      },
+                      {
+                        "type": "STRING",
+                        "name": "reference",
+                        "value": "CACHE"
+                      }
+                    ]
+                  },
+                  {
+                    "type": "item",
+                    "name": "CPU utilization",
+                    "x": "0",
+                    "y": "3",
+                    "width": "18",
+                    "height": "3",
+                    "fields": [
+                      {
+                        "type": "ITEM",
+                        "name": "itemid.0",
+                        "value": {
+                          "host": "DGX Spark GB10 by host collector",
+                          "key": "dgx.summary[cpu_pct]"
+                        }
+                      },
+                      {
+                        "type": "INTEGER",
+                        "name": "show.0",
+                        "value": "1"
+                      },
+                      {
+                        "type": "INTEGER",
+                        "name": "show.1",
+                        "value": "2"
+                      },
+                      {
+                        "type": "STRING",
+                        "name": "description",
+                        "value": "CPU utilization"
+                      },
+                      {
+                        "type": "INTEGER",
+                        "name": "decimal_places",
+                        "value": "1"
+                      },
+                      {
+                        "type": "STRING",
+                        "name": "reference",
+                        "value": "CPUPT"
+                      }
+                    ]
+                  },
+                  {
+                    "type": "item",
+                    "name": "NVIDIA-reported power",
+                    "x": "18",
+                    "y": "3",
+                    "width": "18",
+                    "height": "3",
+                    "fields": [
+                      {
+                        "type": "ITEM",
+                        "name": "itemid.0",
+                        "value": {
+                          "host": "DGX Spark GB10 by host collector",
+                          "key": "dgx.summary[gpu_power]"
+                        }
+                      },
+                      {
+                        "type": "INTEGER",
+                        "name": "show.0",
+                        "value": "1"
+                      },
+                      {
+                        "type": "INTEGER",
+                        "name": "show.1",
+                        "value": "2"
+                      },
+                      {
+                        "type": "STRING",
+                        "name": "description",
+                        "value": "NVIDIA-reported power"
+                      },
+                      {
+                        "type": "INTEGER",
+                        "name": "decimal_places",
+                        "value": "1"
+                      },
+                      {
+                        "type": "STRING",
+                        "name": "reference",
+                        "value": "POWER"
+                      }
+                    ]
+                  },
+                  {
+                    "type": "item",
+                    "name": "Active engine endpoints",
+                    "x": "36",
+                    "y": "3",
+                    "width": "18",
+                    "height": "3",
+                    "fields": [
+                      {
+                        "type": "ITEM",
+                        "name": "itemid.0",
+                        "value": {
+                          "host": "DGX Spark GB10 by host collector",
+                          "key": "dgx.summary[engines_active]"
+                        }
+                      },
+                      {
+                        "type": "INTEGER",
+                        "name": "show.0",
+                        "value": "1"
+                      },
+                      {
+                        "type": "INTEGER",
+                        "name": "show.1",
+                        "value": "2"
+                      },
+                      {
+                        "type": "STRING",
+                        "name": "description",
+                        "value": "Active engine endpoints"
+                      },
+                      {
+                        "type": "INTEGER",
+                        "name": "decimal_places",
+                        "value": "0"
+                      },
+                      {
+                        "type": "STRING",
+                        "name": "reference",
+                        "value": "ENGUP"
+                      }
+                    ]
+                  },
+                  {
+                    "type": "item",
+                    "name": "Snapshot age - stale after 300 s",
+                    "x": "54",
+                    "y": "3",
+                    "width": "18",
+                    "height": "3",
+                    "fields": [
+                      {
+                        "type": "ITEM",
+                        "name": "itemid.0",
+                        "value": {
+                          "host": "DGX Spark GB10 by host collector",
+                          "key": "dgx.snapshot.age"
+                        }
+                      },
+                      {
+                        "type": "INTEGER",
+                        "name": "show.0",
+                        "value": "1"
+                      },
+                      {
+                        "type": "INTEGER",
+                        "name": "show.1",
+                        "value": "2"
+                      },
+                      {
+                        "type": "STRING",
+                        "name": "description",
+                        "value": "Snapshot age - stale after 300 s"
+                      },
+                      {
+                        "type": "INTEGER",
+                        "name": "decimal_places",
+                        "value": "0"
+                      },
+                      {
+                        "type": "STRING",
+                        "name": "thresholds.0.color",
+                        "value": "199C0D"
+                      },
+                      {
+                        "type": "STRING",
+                        "name": "thresholds.0.threshold",
+                        "value": "0"
+                      },
+                      {
+                        "type": "STRING",
+                        "name": "thresholds.1.color",
+                        "value": "F63100"
+                      },
+                      {
+                        "type": "STRING",
+                        "name": "thresholds.1.threshold",
+                        "value": "300"
+                      },
+                      {
+                        "type": "STRING",
+                        "name": "reference",
+                        "value": "FRESH"
+                      }
+                    ]
+                  },
+                  {
+                    "type": "piechart",
+                    "name": "Root filesystem (/) - used / free",
+                    "x": "0",
+                    "y": "6",
+                    "width": "24",
+                    "height": "6",
+                    "fields": [
+                      {
+                        "type": "INTEGER",
+                        "name": "ds.0.dataset_type",
+                        "value": "0"
+                      },
+                      {
+                        "type": "ITEM",
+                        "name": "ds.0.itemids.0",
+                        "value": {
+                          "host": "DGX Spark GB10 by host collector",
+                          "key": "dgx.summary[root_used]"
+                        }
+                      },
+                      {
+                        "type": "ITEM",
+                        "name": "ds.0.itemids.1",
+                        "value": {
+                          "host": "DGX Spark GB10 by host collector",
+                          "key": "dgx.summary[root_free]"
+                        }
+                      },
+                      {
+                        "type": "INTEGER",
+                        "name": "ds.0.type.0",
+                        "value": "0"
+                      },
+                      {
+                        "type": "INTEGER",
+                        "name": "ds.0.type.1",
+                        "value": "0"
+                      },
+                      {
+                        "type": "STRING",
+                        "name": "ds.0.color.0",
+                        "value": "F63100"
+                      },
+                      {
+                        "type": "STRING",
+                        "name": "ds.0.color.1",
+                        "value": "199C0D"
+                      },
+                      {
+                        "type": "INTEGER",
+                        "name": "ds.0.aggregate_function",
+                        "value": "7"
+                      },
+                      {
+                        "type": "INTEGER",
+                        "name": "draw_type",
+                        "value": "0"
+                      },
+                      {
+                        "type": "INTEGER",
+                        "name": "legend",
+                        "value": "1"
+                      },
+                      {
+                        "type": "INTEGER",
+                        "name": "legend_value",
+                        "value": "1"
+                      },
+                      {
+                        "type": "INTEGER",
+                        "name": "legend_lines",
+                        "value": "2"
+                      },
+                      {
+                        "type": "STRING",
+                        "name": "reference",
+                        "value": "FSPIE"
+                      }
+                    ]
+                  },
+                  {
+                    "type": "honeycomb",
+                    "name": "Discovered ports - green UP / red DOWN",
+                    "x": "24",
+                    "y": "6",
+                    "width": "48",
+                    "height": "6",
+                    "fields": [
+                      {
+                        "type": "STRING",
+                        "name": "items.0",
+                        "value": "Service * TCP availability"
+                      },
+                      {
+                        "type": "STRING",
+                        "name": "primary_label",
+                        "value": "{ITEM.NAME}"
+                      },
+                      {
+                        "type": "INTEGER",
+                        "name": "primary_label_type",
+                        "value": "0"
+                      },
+                      {
+                        "type": "INTEGER",
+                        "name": "secondary_label_type",
+                        "value": "1"
+                      },
+                      {
+                        "type": "INTEGER",
+                        "name": "secondary_label_decimal_places",
+                        "value": "0"
+                      },
+                      {
+                        "type": "INTEGER",
+                        "name": "show.0",
+                        "value": "1"
+                      },
+                      {
+                        "type": "INTEGER",
+                        "name": "show.1",
+                        "value": "2"
+                      },
+                      {
+                        "type": "STRING",
+                        "name": "bg_color",
+                        "value": "808080"
+                      },
+                      {
+                        "type": "INTEGER",
+                        "name": "interpolation",
+                        "value": "0"
+                      },
+                      {
+                        "type": "STRING",
+                        "name": "thresholds.0.color",
+                        "value": "F63100"
+                      },
+                      {
+                        "type": "STRING",
+                        "name": "thresholds.0.threshold",
+                        "value": "0"
+                      },
+                      {
+                        "type": "STRING",
+                        "name": "thresholds.1.color",
+                        "value": "199C0D"
+                      },
+                      {
+                        "type": "STRING",
+                        "name": "thresholds.1.threshold",
+                        "value": "1"
+                      },
+                      {
+                        "type": "STRING",
+                        "name": "reference",
+                        "value": "PORTS"
+                      }
+                    ]
+                  },
+                  {
+                    "type": "graph",
+                    "name": "DGX: Network IN and OUT",
+                    "x": "0",
+                    "y": "12",
+                    "width": "36",
+                    "height": "6",
+                    "fields": [
+                      {
+                        "type": "GRAPH",
+                        "name": "graphid.0",
+                        "value": {
+                          "host": "DGX Spark GB10 by host collector",
+                          "name": "DGX: Network IN and OUT"
+                        }
+                      },
+                      {
+                        "type": "STRING",
+                        "name": "reference",
+                        "value": "NETIO"
+                      }
+                    ]
+                  },
+                  {
+                    "type": "graph",
+                    "name": "DGX: Disk read and write",
+                    "x": "36",
+                    "y": "12",
+                    "width": "36",
+                    "height": "6",
+                    "fields": [
+                      {
+                        "type": "GRAPH",
+                        "name": "graphid.0",
+                        "value": {
+                          "host": "DGX Spark GB10 by host collector",
+                          "name": "DGX: Disk read and write"
+                        }
+                      },
+                      {
+                        "type": "STRING",
+                        "name": "reference",
+                        "value": "DSKIO"
+                      }
+                    ]
+                  },
+                  {
+                    "type": "svggraph",
+                    "name": "All discovered temperatures - by sensor",
+                    "x": "0",
+                    "y": "18",
+                    "width": "72",
+                    "height": "7",
+                    "fields": [
+                      {
+                        "type": "INTEGER",
+                        "name": "ds.0.dataset_type",
+                        "value": "1"
+                      },
+                      {
+                        "type": "STRING",
+                        "name": "ds.0.items.0",
+                        "value": "Temperature sensor *"
+                      },
+                      {
+                        "type": "STRING",
+                        "name": "ds.0.items.1",
+                        "value": "Temperature zone *"
+                      },
+                      {
+                        "type": "STRING",
+                        "name": "ds.0.items.2",
+                        "value": "GPU * temperature"
+                      },
+                      {
+                        "type": "STRING",
+                        "name": "ds.0.color",
+                        "value": "FF465C"
+                      },
+                      {
+                        "type": "INTEGER",
+                        "name": "ds.0.fill",
+                        "value": "0"
+                      },
+                      {
+                        "type": "INTEGER",
+                        "name": "righty",
+                        "value": "0"
+                      },
+                      {
+                        "type": "INTEGER",
+                        "name": "legend",
+                        "value": "1"
+                      },
+                      {
+                        "type": "INTEGER",
+                        "name": "legend_lines",
+                        "value": "10"
+                      },
+                      {
+                        "type": "INTEGER",
+                        "name": "legend_columns",
+                        "value": "2"
+                      },
+                      {
+                        "type": "INTEGER",
+                        "name": "legend_statistic",
+                        "value": "1"
+                      },
+                      {
+                        "type": "STRING",
+                        "name": "reference",
+                        "value": "TEMPS"
+                      }
+                    ]
+                  },
+                  {
+                    "type": "itemhistory",
+                    "name": "Monitored directories - largest first (overlapping paths are not additive)",
+                    "x": "0",
+                    "y": "25",
+                    "width": "72",
+                    "height": "8",
+                    "fields": [
+                      {
+                        "type": "STRING",
+                        "name": "columns.0.name",
+                        "value": "Allocated size, measurement age and directory"
+                      },
+                      {
+                        "type": "ITEM",
+                        "name": "columns.0.itemid",
+                        "value": {
+                          "host": "DGX Spark GB10 by host collector",
+                          "key": "dgx.directory.ranking"
+                        }
+                      },
+                      {
+                        "type": "INTEGER",
+                        "name": "columns.0.display",
+                        "value": "1"
+                      },
+                      {
+                        "type": "INTEGER",
+                        "name": "columns.0.monospace_font",
+                        "value": "1"
+                      },
+                      {
+                        "type": "INTEGER",
+                        "name": "show_lines",
+                        "value": "1"
+                      },
+                      {
+                        "type": "INTEGER",
+                        "name": "show_timestamp",
+                        "value": "1"
+                      },
+                      {
+                        "type": "INTEGER",
+                        "name": "show_column_header",
+                        "value": "1"
+                      },
+                      {
+                        "type": "STRING",
+                        "name": "reference",
+                        "value": "DIRSZ"
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "name": "History and resource details",
+                "widgets": [
+                  {
+                    "type": "graph",
+                    "name": "DGX: CPU utilization",
+                    "x": "0",
+                    "y": "0",
+                    "width": "36",
+                    "height": "5",
+                    "fields": [
+                      {
+                        "type": "GRAPH",
+                        "name": "graphid.0",
+                        "value": {
+                          "host": "DGX Spark GB10 by host collector",
+                          "name": "DGX: CPU utilization"
+                        }
+                      },
+                      {
+                        "type": "STRING",
+                        "name": "reference",
+                        "value": "DG000"
+                      }
+                    ]
+                  },
+                  {
+                    "type": "graph",
+                    "name": "DGX: Unified RAM",
+                    "x": "36",
+                    "y": "0",
+                    "width": "36",
+                    "height": "5",
+                    "fields": [
+                      {
+                        "type": "GRAPH",
+                        "name": "graphid.0",
+                        "value": {
+                          "host": "DGX Spark GB10 by host collector",
+                          "name": "DGX: Unified RAM"
+                        }
+                      },
+                      {
+                        "type": "STRING",
+                        "name": "reference",
+                        "value": "DG001"
+                      }
+                    ]
+                  },
+                  {
+                    "type": "graph",
+                    "name": "DGX: GPU temperature",
+                    "x": "0",
+                    "y": "5",
+                    "width": "36",
+                    "height": "5",
+                    "fields": [
+                      {
+                        "type": "GRAPH",
+                        "name": "graphid.0",
+                        "value": {
+                          "host": "DGX Spark GB10 by host collector",
+                          "name": "DGX: GPU temperature"
+                        }
+                      },
+                      {
+                        "type": "STRING",
+                        "name": "reference",
+                        "value": "DG002"
+                      }
+                    ]
+                  },
+                  {
+                    "type": "graph",
+                    "name": "DGX: GPU utilization",
+                    "x": "36",
+                    "y": "5",
+                    "width": "36",
+                    "height": "5",
+                    "fields": [
+                      {
+                        "type": "GRAPH",
+                        "name": "graphid.0",
+                        "value": {
+                          "host": "DGX Spark GB10 by host collector",
+                          "name": "DGX: GPU utilization"
+                        }
+                      },
+                      {
+                        "type": "STRING",
+                        "name": "reference",
+                        "value": "DG003"
+                      }
+                    ]
+                  },
+                  {
+                    "type": "graph",
+                    "name": "DGX: NVIDIA-reported power",
+                    "x": "0",
+                    "y": "10",
+                    "width": "36",
+                    "height": "5",
+                    "fields": [
+                      {
+                        "type": "GRAPH",
+                        "name": "graphid.0",
+                        "value": {
+                          "host": "DGX Spark GB10 by host collector",
+                          "name": "DGX: NVIDIA-reported power"
+                        }
+                      },
+                      {
+                        "type": "STRING",
+                        "name": "reference",
+                        "value": "DG004"
+                      }
+                    ]
+                  },
+                  {
+                    "type": "graph",
+                    "name": "DGX: Estimated NVIDIA energy",
+                    "x": "36",
+                    "y": "10",
+                    "width": "36",
+                    "height": "5",
+                    "fields": [
+                      {
+                        "type": "GRAPH",
+                        "name": "graphid.0",
+                        "value": {
+                          "host": "DGX Spark GB10 by host collector",
+                          "name": "DGX: Estimated NVIDIA energy"
+                        }
+                      },
+                      {
+                        "type": "STRING",
+                        "name": "reference",
+                        "value": "DG005"
+                      }
+                    ]
+                  },
+                  {
+                    "type": "graph",
+                    "name": "DGX: RAM pressure and root filesystem",
+                    "x": "0",
+                    "y": "15",
+                    "width": "36",
+                    "height": "5",
+                    "fields": [
+                      {
+                        "type": "GRAPH",
+                        "name": "graphid.0",
+                        "value": {
+                          "host": "DGX Spark GB10 by host collector",
+                          "name": "DGX: RAM pressure and root filesystem"
+                        }
+                      },
+                      {
+                        "type": "STRING",
+                        "name": "reference",
+                        "value": "DG006"
+                      }
+                    ]
+                  },
+                  {
+                    "type": "graph",
+                    "name": "DGX: Network IN and OUT",
+                    "x": "36",
+                    "y": "15",
+                    "width": "36",
+                    "height": "5",
+                    "fields": [
+                      {
+                        "type": "GRAPH",
+                        "name": "graphid.0",
+                        "value": {
+                          "host": "DGX Spark GB10 by host collector",
+                          "name": "DGX: Network IN and OUT"
+                        }
+                      },
+                      {
+                        "type": "STRING",
+                        "name": "reference",
+                        "value": "DG007"
+                      }
+                    ]
+                  },
+                  {
+                    "type": "graph",
+                    "name": "DGX: Disk read and write",
+                    "x": "0",
+                    "y": "20",
+                    "width": "36",
+                    "height": "5",
+                    "fields": [
+                      {
+                        "type": "GRAPH",
+                        "name": "graphid.0",
+                        "value": {
+                          "host": "DGX Spark GB10 by host collector",
+                          "name": "DGX: Disk read and write"
+                        }
+                      },
+                      {
+                        "type": "STRING",
+                        "name": "reference",
+                        "value": "DG008"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "valuemaps": [
+          {
+            "uuid": "5cd83cc2b2f149abbd3d783658d3eb1a",
+            "name": "Service availability",
+            "mappings": [
+              {
+                "value": "0",
+                "newvalue": "DOWN"
+              },
+              {
+                "value": "1",
+                "newvalue": "UP"
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "graphs": [
+      {
+        "uuid": "11deedef714042a896a0fac65285f105",
+        "name": "DGX: CPU utilization",
+        "graph_items": [
+          {
+            "sortorder": "0",
+            "color": "199C0D",
+            "item": {
+              "host": "DGX Spark GB10 by host collector",
+              "key": "dgx.summary[cpu_pct]"
+            }
+          }
+        ]
+      },
+      {
+        "uuid": "ac4e09f65807425d8d85797e64447428",
+        "name": "DGX: Unified RAM",
+        "graph_items": [
+          {
+            "sortorder": "0",
+            "color": "199C0D",
+            "item": {
+              "host": "DGX Spark GB10 by host collector",
+              "key": "dgx.summary[mem_used]"
+            }
+          },
+          {
+            "sortorder": "1",
+            "color": "F63100",
+            "item": {
+              "host": "DGX Spark GB10 by host collector",
+              "key": "dgx.summary[mem_available]"
+            }
+          }
+        ]
+      },
+      {
+        "uuid": "eb03c0fa53764eecbbd6f8dfdc5a3a12",
+        "name": "DGX: GPU temperature",
+        "graph_items": [
+          {
+            "sortorder": "0",
+            "color": "199C0D",
+            "item": {
+              "host": "DGX Spark GB10 by host collector",
+              "key": "dgx.summary[gpu_temp]"
+            }
+          }
+        ]
+      },
+      {
+        "uuid": "afdba0114db347a882f566ebda63c57c",
+        "name": "DGX: GPU utilization",
+        "graph_items": [
+          {
+            "sortorder": "0",
+            "color": "199C0D",
+            "item": {
+              "host": "DGX Spark GB10 by host collector",
+              "key": "dgx.summary[gpu_util]"
+            }
+          }
+        ]
+      },
+      {
+        "uuid": "6f63619e6f2c47779c33a6e49b16214b",
+        "name": "DGX: NVIDIA-reported power",
+        "graph_items": [
+          {
+            "sortorder": "0",
+            "color": "199C0D",
+            "item": {
+              "host": "DGX Spark GB10 by host collector",
+              "key": "dgx.summary[gpu_power]"
+            }
+          }
+        ]
+      },
+      {
+        "uuid": "67da4565f21d45e4b5dc4d515e6030d0",
+        "name": "DGX: Estimated NVIDIA energy",
+        "graph_items": [
+          {
+            "sortorder": "0",
+            "color": "199C0D",
+            "item": {
+              "host": "DGX Spark GB10 by host collector",
+              "key": "dgx.summary[gpu_kwh]"
+            }
+          }
+        ]
+      },
+      {
+        "uuid": "530254fe629144c08d84db5876d28cd6",
+        "name": "DGX: RAM pressure and root filesystem",
+        "graph_items": [
+          {
+            "sortorder": "0",
+            "color": "199C0D",
+            "item": {
+              "host": "DGX Spark GB10 by host collector",
+              "key": "dgx.summary[mem_used_pct]"
+            }
+          },
+          {
+            "sortorder": "1",
+            "color": "F63100",
+            "item": {
+              "host": "DGX Spark GB10 by host collector",
+              "key": "dgx.summary[root_used_pct]"
+            }
+          }
+        ]
+      },
+      {
+        "uuid": "5a39772c58184384a36e10e38d102a1c",
+        "name": "DGX: Network IN and OUT",
+        "graph_items": [
+          {
+            "sortorder": "0",
+            "color": "199C0D",
+            "item": {
+              "host": "DGX Spark GB10 by host collector",
+              "key": "dgx.summary[network_rx_bps]"
+            }
+          },
+          {
+            "sortorder": "1",
+            "color": "F63100",
+            "item": {
+              "host": "DGX Spark GB10 by host collector",
+              "key": "dgx.summary[network_tx_bps]"
+            }
+          }
+        ]
+      },
+      {
+        "uuid": "46f8b26c0c90475c9caba8be6d0f9d4d",
+        "name": "DGX: Disk read and write",
+        "graph_items": [
+          {
+            "sortorder": "0",
+            "color": "199C0D",
+            "item": {
+              "host": "DGX Spark GB10 by host collector",
+              "key": "dgx.summary[disk_read_bps]"
+            }
+          },
+          {
+            "sortorder": "1",
+            "color": "F63100",
+            "item": {
+              "host": "DGX Spark GB10 by host collector",
+              "key": "dgx.summary[disk_write_bps]"
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

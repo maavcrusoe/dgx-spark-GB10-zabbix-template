@@ -1,0 +1,18 @@
+[Unit]
+Description=Measure DGX Spark model/cache directories on host
+
+[Service]
+Type=oneshot
+User=root
+ExecStart=/usr/bin/python3 /usr/local/lib/dgx-spark/collector.py --config /opt/dgx-spark/config.json --scan-directories
+TimeoutStartSec=15min
+Nice=19
+IOSchedulingClass=idle
+UMask=0077
+NoNewPrivileges=true
+ProtectSystem=strict
+ReadWritePaths=/var/lib/dgx-spark
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+RestrictSUIDSGID=true

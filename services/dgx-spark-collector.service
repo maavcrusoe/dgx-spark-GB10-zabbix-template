@@ -1,0 +1,19 @@
+[Unit]
+Description=DGX Spark host telemetry snapshot
+After=network.target
+
+[Service]
+Type=oneshot
+User=root
+ExecStart=/usr/bin/python3 /usr/local/lib/dgx-spark/collector.py --config /opt/dgx-spark/config.json
+TimeoutStartSec=90
+UMask=0022
+Nice=10
+NoNewPrivileges=true
+ProtectSystem=strict
+ReadWritePaths=/var/lib/dgx-spark
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+RestrictSUIDSGID=true
+# Host /proc, /sys, /dev and home directories must remain visible.

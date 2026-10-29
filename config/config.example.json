@@ -1,0 +1,33 @@
+{
+  "directory_interval_seconds": 1800,
+  "directory_timeout_seconds": 90,
+  "dashboard_interfaces": [],
+  "dashboard_disks": [],
+  "directories": [
+    "/root/.cache",
+    "/root/.cache/huggingface",
+    "/root/.ollama/models",
+    "/usr/share/ollama/.ollama/models",
+    "/home/*/.cache/huggingface",
+    "/home/*/.ollama/models"
+  ],
+  "services": [
+    {"name": "Ollama candidate", "host": "127.0.0.1", "port": 11434, "health_path": "/api/version"},
+    {"name": "vLLM or LLM API candidate", "host": "127.0.0.1", "port": 8000},
+    {"name": "ComfyUI candidate", "host": "127.0.0.1", "port": 8188, "health_path": "/system_stats"},
+    {"name": "llama.cpp candidate", "host": "127.0.0.1", "port": 8080, "health_path": "/health"},
+    {"name": "llama.cpp candidate (recent versions)", "host": "127.0.0.1", "port": 9931, "health_path": "/health"},
+    {"name": "LM Studio candidate", "host": "127.0.0.1", "port": 1234, "health_path": "/v1/models"},
+    {"name": "SGLang candidate", "host": "127.0.0.1", "port": 30000, "health_path": "/health"},
+    {"name": "TensorFold", "host": "127.0.0.1", "port": 8888}
+  ],
+  "process_groups": [
+    {"name": "Ollama", "match": "(^|/| )ollama( |/|$)|/usr/lib/ollama/"},
+    {"name": "vLLM", "match": "vllm", "exclude": "collector.py"},
+    {"name": "ComfyUI", "match": "comfyui", "exclude": "collector.py"},
+    {"name": "llama.cpp", "match": "llama-server", "exclude": "ollama"},
+    {"name": "LM Studio", "match": "lmstudio|lm-studio|llmster"},
+    {"name": "SGLang", "match": "sglang"},
+    {"name": "TensorFold", "match": "tensorfold", "exclude": "collector.py"}
+  ]
+}

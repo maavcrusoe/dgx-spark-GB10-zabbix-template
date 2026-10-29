@@ -1,0 +1,21 @@
+# Minimal active Agent 2 for the DGX host collector.
+# Configure .env before starting; no NVIDIA runtime or host namespaces required.
+services:
+  zabbix-agent2:
+    # Server 7.0 requires a supported Agent 2 version from the 7.0 branch.
+    image: ${ZABBIX_AGENT2_IMAGE:-zabbix/zabbix-agent2:ubuntu-7.0-latest}
+    container_name: zabbix-agent2
+    hostname: ${ZBX_HOSTNAME:-dgx-spark}
+    restart: unless-stopped
+    environment:
+      # Must exactly match the technical host name registered in Zabbix.
+      ZBX_HOSTNAME: ${ZBX_HOSTNAME:-dgx-spark}
+      # Active connections go to this server/proxy on TCP/10051.
+      ZBX_SERVER_HOST: ${ZBX_SERVER_HOST:?Set ZBX_SERVER_HOST in .env}
+      ZBX_ACTIVE_ALLOW: "true"
+      ZBX_PASSIVE_ALLOW: "false"
+    volumes:
+      # Directory mount preserves visibility after atomic JSON replacement.
+      - /var/lib/dgx-spark/public:/var/lib/dgx-spark/public:ro
+      # The agent only runs this fixed file-reading UserParameter.
+      - ./dgx-spark.conf:/etc/zabbix/zabbix_agent2.d/dgx-spark.conf:ro
